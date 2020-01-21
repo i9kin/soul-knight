@@ -1,7 +1,7 @@
 from PIL import Image
 
-im = Image.open('sprites2.png')
+im = Image.open('tiny-16-basic.png')
 
-j = 27
-for i in range(14):
-	im.crop((34 * i, 34 * j, 34 * i + 34, 34 * j + 34)).save(f'tmp/{j}{i}.png')
+for j in range(16):
+	for i in range(16):
+		im.crop((32 * i, 32 * j, 32 * i + 32,  32 * j + 32)).save(f'sprites/{j * 32 + i}.png')

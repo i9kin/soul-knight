@@ -50,22 +50,12 @@ def bfs_shortest_path(graph: dict, start, goal) -> str:
             explored.append(node)
     return -1
 
-level = [
-       "---------",
-       "-m -p-  -",
-       "-  - -  -",
-       "-m      -",
-       "---------",
-       ]
+level = list(map(str.strip, open('maps/1.txt').readlines()))
 
 
-
-
-wall = pygame.image.load("tiles/20.png")
+#wall = pygame.image.load("tiles/20.png")
+wall = pygame.image.load("sprites/10.png")
 wall = pygame.transform.scale(wall, (64, 64))
-
-floor = pygame.image.load("tiles/1.png")
-floor = pygame.transform.scale(floor, (64, 64))
 
 
 x = y = 0
