@@ -1,4 +1,6 @@
 import pygameMenu
+import copy
+
 import tiledtmxloader
 import pygame
 from pygame import *
@@ -19,31 +21,43 @@ resources.load(world_map)
 sprite_layers = tiledtmxloader.helperspygame.get_layers_from_map(resources)
 
 
-
 tmx = [sprites.background, sprites.walls, sprites.doors]
+
+W = sprite_layers[0].num_tiles_x
+H = sprite_layers[1].num_tiles_y
+lvl = [[' ' for i in range(4 * W)] for _ in range(4 * H)]
 
 for i in range(len(tmx)):
     layer = sprite_layers[i] 
     for row in range(0, layer.num_tiles_x): # перебираем все координаты тайлов
         for col in range(0, layer.num_tiles_y): # перебираем все координаты тайлов
             if layer.content2D[col][row] is not None:
+                if tmx[i] == sprites.walls or tmx[i] == sprites.doors: 
+                    for x in range(2):
+                        if 2 * row - 1 >= 0:
+                            lvl[2 * col + x][2 * row - 1] = '-'
+                        lvl[2 * col + x][2 * row] = '-'
+                        lvl[2 * col + x][2 * row + 1] = '-'
+                           
                 tmp = sprites.Sprite(layer.content2D[col][row].image, tmx[i])
                 tmp.move(row * 32, col * 32)
 
 layer = sprite_layers[3] 
-
 for person in layer.objects:
     if person.properties["img"] == "person.png":
         person = sprites.CharacterSprite(pygame.image.load("person.png"), person.x, person.y, True, sprites.character)
     else:
         person = sprites.CharacterSprite(pygame.image.load(person.properties["img"]), person.x, person.y, False, sprites.character)
 
+
 a = 135
 
-size = (1000, 1000)
+size = ((W + 1) * 32, (H + 1) * 32)
 
 pygame.init()
 screen = pygame.display.set_mode(size)#, pygame.FULLSCREEN)
+
+
 clock = pygame.time.Clock()
 
 
@@ -189,21 +203,6 @@ def module(x, y):
     return math.sqrt(x ** 2 + y ** 2)
 
 
-SZ = 4 
-"""
-lvl = [[' ' for j in range(len(level[0]) * SZ)] for i in range(len(level) * SZ)]
-
-for wall in sprites.walls:
-    x = wall.rect.x
-    y = wall.rect.y
-    x //= (64 // SZ)
-    y //= (64 // SZ)
-    for i in range(SZ):
-        for j in range(-1, SZ):
-            try:
-                lvl[y + i][x + j] = '-'
-            except:
-                pass
   
 graph = {}
 for i in range(len(lvl)):
@@ -218,7 +217,7 @@ for i in range(len(lvl)):
                 graph[i * len(lvl[0]) + j].append(i * len(lvl[0]) + j + 1)
             if i + 1 < len(lvl) and lvl[i + 1][j] != '-':
                 graph[i * len(lvl[0]) + j].append((i + 1) * len(lvl[0]) + j)
-"""
+
 
 fps_block = -1
 angle_attack = 0
@@ -238,15 +237,18 @@ def atack(x, y):
     arrow.rotate_c((angle + a) % 360)
     arrow.rect.center = person.rect.center
     lenght = math.sqrt(x2** 2 + y2 ** 2)
-    k = lenght / 10
+    k = lenght / 15
     l = 1 / (k - 1)
     arrow.dx = (l * x2) / (1 + l)
     arrow.dy = -(l * y2) / (1 + l)
     person.cur_frame = 0
     return angle
 
+old_graph = copy.deepcopy(graph)
 
 while True:
+    graph = copy.deepcopy(old_graph)
+
     screen.unlock()
     clock.tick(60)
     pygame.display.set_caption("fps: " + str(clock.get_fps()))
@@ -280,7 +282,7 @@ while True:
     if keys[K_ESCAPE]:
         os._exit(0)
     if  fps_block == -1 and sum([keys[K_w], keys[K_a], keys[K_s], keys[K_d]]):
-        for i in range(4):
+        for i in range(5):
             thread.engine.key(keys[K_w], keys[K_a], keys[K_s], keys[K_d])
 
     for aroow in sprites.aroows:
@@ -315,11 +317,30 @@ while True:
         else:
             cur.death()
 
-    #start = ((person.rect.y) // 16 + 1) * len(lvl[0]) + (person.rect.x + 1) // 16 + 1
+    start = ((person.rect.y) // 16 + 1) * len(lvl[0]) + (person.rect.x + 1) // 16 + 1
 
-    #lvl[start // len(lvl[0])][start % len(lvl[0])] = 'k'
+    lvl[start // len(lvl[0])][start % len(lvl[0])] = 'k'
 
-    """
+
+    for cur in sprites.character:
+        if not cur.main_person:
+            if cur.fps_draw % 5 == 0:
+                to = ((cur.rect.y) // 16 + 1) * len(lvl[0]) + (cur.rect.x + 1) // 16 + 1           
+                #for i in range(5):
+                #    for j in range(3):
+                #        vertex = to + (i - 1) * len(lvl[0]) + j
+                #        lvl[vertex // len(lvl[0])][vertex % len(lvl[0])] = 'k'          
+                
+                cur = to
+                for i in range(3):
+                    for j in range(3):
+                        vertex = to + i * len(lvl[0]) + j
+                        lvl[vertex // len(lvl[0])][vertex % len(lvl[0])] = 'k' 
+                        if vertex in graph and cur in graph[vertex]:
+                            graph[vertex].remove(cur)
+
+                
+
     for cur in sprites.character:
         if not cur.main_person:
             if cur.fps_draw % 5 == 0:
@@ -341,9 +362,8 @@ while True:
 
                     cur.rect = pygame.Rect(x - 16, y - 16, 16, 16)    
                 
-                lvl[to // len(lvl[0])][to % len(lvl[0])] = 'k'                    
             cur.fps_draw += 1
-    """
+    
 
     for cur in sprites.character:
         if cur.xp <= 0:
@@ -361,7 +381,6 @@ while True:
                 cur.kill()
                 person.xp -= 30
     
-    """
     for i in range(len(lvl)):
         for j in range(len(lvl[0])):
             if lvl[i][j] == '-':
@@ -370,6 +389,5 @@ while True:
                 pygame.draw.rect(screen, pygame.Color('green'), (j * 16, i * 16, 16, 16), 1)
             else:
                 pygame.draw.rect(screen, pygame.Color('blue'), (j * 16, i * 16, 16, 16), 1)
-    """
     pygame.display.flip()
 
