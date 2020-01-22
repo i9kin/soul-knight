@@ -1,8 +1,5 @@
 import pygameMenu
-
-
 import tiledtmxloader
-
 import pygame
 from pygame import *
 from pygame.locals import *
@@ -16,47 +13,41 @@ import cursor
 import os
 import math
 
-
-wall = pygame.image.load("sprites/12.png")
-wall = pygame.transform.scale(wall, (32, 32))
-
 world_map = tiledtmxloader.tmxreader.TileMapParser().parse_decode('map.tmx') 
 resources = tiledtmxloader.helperspygame.ResourceLoaderPygame()
 resources.load(world_map)
 sprite_layers = tiledtmxloader.helperspygame.get_layers_from_map(resources)
 
-background = sprite_layers[0] 
-walls_layer = sprite_layers[1] 
-
-for row in range(0, background.num_tiles_x): # перебираем все координаты тайлов
-    for col in range(0, background.num_tiles_y):
-        if background.content2D[col][row] is not None:
-            tmp = sprites.Sprite(background.content2D[col][row].image, sprites.background)
-            tmp.move(row * 32, col * 32)
 
 
-for row in range(0, walls_layer.num_tiles_x): # перебираем все координаты тайлов
-    for col in range(0, walls_layer.num_tiles_y):
-        if walls_layer.content2D[col][row] is not None:
-            im = walls_layer.content2D[col][row].image
-            #im = pygame.transform.scale(im, (30, 30))
-            tmp = sprites.Sprite(im, sprites.walls)
-            tmp.move(row * 32, col * 32)
+tmx = [sprites.background, sprites.walls, sprites.walls, sprites.TMP]
 
-# https://github.com/TheAlgorithms/Python/blob/master/graphs/bfs_shortest_path.py
+for i in range(len(tmx)):
+    layer = sprite_layers[i] 
+    for row in range(0, layer.num_tiles_x): # перебираем все координаты тайлов
+        for col in range(0, layer.num_tiles_y): # перебираем все координаты тайлов
+            if layer.content2D[col][row] is not None:
+                tmp = sprites.Sprite(layer.content2D[col][row].image, tmx[i])
+                tmp.move(row * 32, col * 32)
 
+layer = sprite_layers[4] 
+
+for person in layer.objects:
+    if person.properties["main"]:
+        person = sprites.CharacterSprite(pygame.image.load("person.png"), person.x, person.y, True, sprites.character)
+    else:
+        person = sprites.CharacterSprite(pygame.image.load("orc.png"), person.x, person.y, False, sprites.character)
 
 a = 135
 
-size = (1200, 1200)
+size = (1000, 1000)
 
 pygame.init()
-screen = pygame.display.set_mode(size)
-
+screen = pygame.display.set_mode(size)#, pygame.FULLSCREEN)
 clock = pygame.time.Clock()
-screen.fill(pygame.Color('blue'))
 
 
+# https://github.com/TheAlgorithms/Python/blob/master/graphs/bfs_shortest_path.py
 
 def bfs_shortest_path(graph: dict, start, goal) -> str:
     explored = []
@@ -76,31 +67,6 @@ def bfs_shortest_path(graph: dict, start, goal) -> str:
                     return new_path
             explored.append(node)
     return -1
-
-level = list(map(str.strip, open('maps/1.txt').readlines()))
-
-
-#wall = pygame.image.load("tiles/20.png")
-
-
-x = y = 0
-person = None
-
-for row in level:
-    for col in row:
-        if col == "-":
-            #tmp = sprites.Wall(wall) 
-            #tmp.move(x, y)
-            pass
-        elif col == 'm':
-            tmp = sprites.CharacterSprite(pygame.image.load("orc.png"), x, y, False, sprites.character)
-        elif col == 'p':
-            person = sprites.CharacterSprite(pygame.image.load("person.png"), x, y, True, sprites.character)
-        x += 64
-    y += 64
-    x = 0 
-
-
 
 
 
@@ -200,50 +166,10 @@ class KeyBoard(threading.Thread):
         self.s = 10
         self.time = 0.05
 
-
-    def atack(self, x, y):
-        person.s()
-        x2 = x - person.rect.x - 32
-        y2 = - y + person.rect.y + 32
-        cos1 = scalar(100, 0, x2, y2)  /  (module(100, 0) * module(x2,y2))
-        cos2 = scalar(0, 100, x2, y2) / (module(0, 100) *  module(x2,y2))
-
-        ang1 = math.degrees(math.acos(cos1))
-        ang2 = math.degrees(math.acos(cos2))
-        if ang2 < 90:
-            angle = math.degrees(math.acos(cos1))
-        else:
-            angle = 360 - math.degrees(math.acos(cos1))
-
-        arrow = sprites.AroowSprite(pygame.image.load("tmp/270.png"))
-        arrow.rotate_c((angle + a) % 360)
-        arrow.rect.center = person.rect.center
-        s = 10
-        lenght = math.sqrt(x2** 2 + y2 ** 2)
-        k = lenght / s
-        l = 1 / (k - 1)
-        arrow.dx = (l * x2) / (1 + l)
-        arrow.dy = -(l * y2) / (1 + l)
-        for i in range(12):
-            self.engine.attack(angle)
-            #time.sleep(self.time / 2)
-        person.cur_frame = 0
-
     def run(self):
         self.alive = True
         while self.alive:
             self.keys = pygame.key.get_pressed()
-            
-            
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    os._exit(0)
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        self.atack(x, y)
-                if event.type == pygame.MOUSEMOTION:
-                    x, y = event.pos
-            
             time.sleep(0.01)
             pygame.event.pump()
 
@@ -268,6 +194,7 @@ def module(x, y):
 
 SZ = 4 
 
+"""
 lvl = [[' ' for j in range(len(level[0]) * SZ)] for i in range(len(level) * SZ)]
 
 for wall in sprites.walls:
@@ -295,30 +222,75 @@ for i in range(len(lvl)):
                 graph[i * len(lvl[0]) + j].append(i * len(lvl[0]) + j + 1)
             if i + 1 < len(lvl) and lvl[i + 1][j] != '-':
                 graph[i * len(lvl[0]) + j].append((i + 1) * len(lvl[0]) + j)
+"""
 
+fps_block = -1
+angle_attack = 0
 
+def atack(x, y):
+    x2 = x - person.rect.x - 32
+    y2 = - y + person.rect.y + 32
+    cos1 = scalar(100, 0, x2, y2)  /  (module(100, 0) * module(x2,y2))
+    cos2 = scalar(0, 100, x2, y2) / (module(0, 100) *  module(x2,y2))
+
+    ang1 = math.degrees(math.acos(cos1))
+    ang2 = math.degrees(math.acos(cos2))
+    if ang2 < 90:
+        angle = math.degrees(math.acos(cos1))
+    else:
+        angle = 360 - math.degrees(math.acos(cos1))
+    arrow = sprites.AroowSprite(pygame.image.load("tmp/270.png"))
+    arrow.rotate_c((angle + a) % 360)
+    arrow.rect.center = person.rect.center
+    lenght = math.sqrt(x2** 2 + y2 ** 2)
+    k = lenght / 10
+    l = 1 / (k - 1)
+    arrow.dx = (l * x2) / (1 + l)
+    arrow.dy = -(l * y2) / (1 + l)
+    #for i in range(12):
+        #self.engine.attack(angle)
+        #time.sleep(self.time / 2)
+    person.cur_frame = 0
+    return angle
 
 
 while True:
-   
     screen.unlock()
     clock.tick(60)
     pygame.display.set_caption("fps: " + str(clock.get_fps()))
-    screen.fill(pygame.Color('gray'))
-
-    
+    screen.fill(pygame.Color(109, 170, 44))
+    # draw sprites
     sprites.background.draw(screen)
-
     sprites.character_death.draw(screen)
     sprites.aroows.draw(screen)
     sprites.walls.draw(screen)
     sprites.character.draw(screen)
+    sprites.TMP.draw(screen)
+
+    if fps_block == 12 * 3:
+        fps_block = -1
+    if fps_block != -1:
+        fps_block += 1
+        if fps_block % 3 == 0:
+            thread.engine.attack(angle_attack)
 
     keys = thread.keys
- 
-    if sum([keys[K_w], keys[K_a], keys[K_s], keys[K_d]]):
-        #for i in range(4):
-        thread.engine.key(keys[K_w], keys[K_a], keys[K_s], keys[K_d])
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            os._exit(0)
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1 and fps_block == -1:
+                angle_attack = atack(x, y)
+                fps_block = 0
+        if event.type == pygame.MOUSEMOTION:
+            x, y = event.pos
+            
+
+    if keys[K_ESCAPE]:
+        os._exit(0)
+    if  fps_block == -1 and sum([keys[K_w], keys[K_a], keys[K_s], keys[K_d]]):
+        for i in range(4):
+            thread.engine.key(keys[K_w], keys[K_a], keys[K_s], keys[K_d])
 
     for aroow in sprites.aroows:
         for obj in sprites.character:
@@ -345,9 +317,9 @@ while True:
         else:
             cur.death()
 
-    start = ((person.rect.y) // 16 + 1) * len(lvl[0]) + (person.rect.x + 1) // 16 + 1
+    #start = ((person.rect.y) // 16 + 1) * len(lvl[0]) + (person.rect.x + 1) // 16 + 1
 
-    lvl[start // len(lvl[0])][start % len(lvl[0])] = 'k'
+    #lvl[start // len(lvl[0])][start % len(lvl[0])] = 'k'
 
     """
     for cur in sprites.character:
