@@ -20,7 +20,7 @@ sprite_layers = tiledtmxloader.helperspygame.get_layers_from_map(resources)
 
 
 
-tmx = [sprites.background, sprites.walls, sprites.walls, sprites.TMP]
+tmx = [sprites.background, sprites.walls, sprites.doors]
 
 for i in range(len(tmx)):
     layer = sprite_layers[i] 
@@ -30,13 +30,13 @@ for i in range(len(tmx)):
                 tmp = sprites.Sprite(layer.content2D[col][row].image, tmx[i])
                 tmp.move(row * 32, col * 32)
 
-layer = sprite_layers[4] 
+layer = sprite_layers[3] 
 
 for person in layer.objects:
-    if person.properties["main"]:
+    if person.properties["img"] == "person.png":
         person = sprites.CharacterSprite(pygame.image.load("person.png"), person.x, person.y, True, sprites.character)
     else:
-        person = sprites.CharacterSprite(pygame.image.load("orc.png"), person.x, person.y, False, sprites.character)
+        person = sprites.CharacterSprite(pygame.image.load(person.properties["img"]), person.x, person.y, False, sprites.character)
 
 a = 135
 
@@ -67,7 +67,6 @@ def bfs_shortest_path(graph: dict, start, goal) -> str:
                     return new_path
             explored.append(node)
     return -1
-
 
 
 class Engine():
@@ -163,8 +162,6 @@ class KeyBoard(threading.Thread):
     def __init__(self, engine):
         super().__init__()
         self.engine = engine
-        self.s = 10
-        self.time = 0.05
 
     def run(self):
         self.alive = True
@@ -193,7 +190,6 @@ def module(x, y):
 
 
 SZ = 4 
-
 """
 lvl = [[' ' for j in range(len(level[0]) * SZ)] for i in range(len(level) * SZ)]
 
@@ -232,7 +228,6 @@ def atack(x, y):
     y2 = - y + person.rect.y + 32
     cos1 = scalar(100, 0, x2, y2)  /  (module(100, 0) * module(x2,y2))
     cos2 = scalar(0, 100, x2, y2) / (module(0, 100) *  module(x2,y2))
-
     ang1 = math.degrees(math.acos(cos1))
     ang2 = math.degrees(math.acos(cos2))
     if ang2 < 90:
@@ -247,9 +242,6 @@ def atack(x, y):
     l = 1 / (k - 1)
     arrow.dx = (l * x2) / (1 + l)
     arrow.dy = -(l * y2) / (1 + l)
-    #for i in range(12):
-        #self.engine.attack(angle)
-        #time.sleep(self.time / 2)
     person.cur_frame = 0
     return angle
 
@@ -265,7 +257,7 @@ while True:
     sprites.aroows.draw(screen)
     sprites.walls.draw(screen)
     sprites.character.draw(screen)
-    sprites.TMP.draw(screen)
+    sprites.doors.draw(screen)
 
     if fps_block == 12 * 3:
         fps_block = -1
@@ -285,12 +277,18 @@ while True:
         if event.type == pygame.MOUSEMOTION:
             x, y = event.pos
             
-
     if keys[K_ESCAPE]:
         os._exit(0)
     if  fps_block == -1 and sum([keys[K_w], keys[K_a], keys[K_s], keys[K_d]]):
         for i in range(4):
             thread.engine.key(keys[K_w], keys[K_a], keys[K_s], keys[K_d])
+
+    for aroow in sprites.aroows:
+        for obj in sprites.doors:
+            offset = (aroow.rect.x - obj.rect.x + int(aroow.dx), aroow.rect.y - obj.rect.y + int(aroow.dy))
+            if obj.mask.overlap_area(aroow.mask, offset) > 0:
+                aroow.kill()
+                break
 
     for aroow in sprites.aroows:
         for obj in sprites.character:
@@ -299,7 +297,7 @@ while True:
                 aroow.kill()
                 obj.xp -= 100
                 break
-        
+
     for aroow in sprites.aroows:
         for obj in sprites.walls:
             offset = (aroow.rect.x - obj.rect.x + int(aroow.dx), aroow.rect.y - obj.rect.y + int(aroow.dy))

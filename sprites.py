@@ -5,7 +5,7 @@ character_death = pygame.sprite.Group()
 aroows = pygame.sprite.Group()
 walls = pygame.sprite.Group()
 background = pygame.sprite.Group()
-TMP = pygame.sprite.Group()
+doors = pygame.sprite.Group()
 
 class CharacterSprite(pygame.sprite.Sprite):
     def __init__(self, sheet, x, y, main_person, group):
