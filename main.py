@@ -1,6 +1,7 @@
 import pygameMenu
 
-import copy
+
+import tiledtmxloader
 
 import pygame
 from pygame import *
@@ -15,6 +16,32 @@ import cursor
 import os
 import math
 
+
+wall = pygame.image.load("sprites/12.png")
+wall = pygame.transform.scale(wall, (32, 32))
+
+world_map = tiledtmxloader.tmxreader.TileMapParser().parse_decode('map.tmx') 
+resources = tiledtmxloader.helperspygame.ResourceLoaderPygame()
+resources.load(world_map)
+sprite_layers = tiledtmxloader.helperspygame.get_layers_from_map(resources)
+
+background = sprite_layers[0] 
+walls_layer = sprite_layers[1] 
+
+for row in range(0, background.num_tiles_x): # перебираем все координаты тайлов
+    for col in range(0, background.num_tiles_y):
+        if background.content2D[col][row] is not None:
+            tmp = sprites.Sprite(background.content2D[col][row].image, sprites.background)
+            tmp.move(row * 32, col * 32)
+
+
+for row in range(0, walls_layer.num_tiles_x): # перебираем все координаты тайлов
+    for col in range(0, walls_layer.num_tiles_y):
+        if walls_layer.content2D[col][row] is not None:
+            im = walls_layer.content2D[col][row].image
+            #im = pygame.transform.scale(im, (30, 30))
+            tmp = sprites.Sprite(im, sprites.walls)
+            tmp.move(row * 32, col * 32)
 
 # https://github.com/TheAlgorithms/Python/blob/master/graphs/bfs_shortest_path.py
 
@@ -54,8 +81,6 @@ level = list(map(str.strip, open('maps/1.txt').readlines()))
 
 
 #wall = pygame.image.load("tiles/20.png")
-wall = pygame.image.load("sprites/10.png")
-wall = pygame.transform.scale(wall, (64, 64))
 
 
 x = y = 0
@@ -64,8 +89,9 @@ person = None
 for row in level:
     for col in row:
         if col == "-":
-            tmp = sprites.Wall(wall) 
-            tmp.move(x, y)
+            #tmp = sprites.Wall(wall) 
+            #tmp.move(x, y)
+            pass
         elif col == 'm':
             tmp = sprites.CharacterSprite(pygame.image.load("orc.png"), x, y, False, sprites.character)
         elif col == 'p':
@@ -271,12 +297,17 @@ for i in range(len(lvl)):
                 graph[i * len(lvl[0]) + j].append((i + 1) * len(lvl[0]) + j)
 
 
+
+
 while True:
    
     screen.unlock()
     clock.tick(60)
     pygame.display.set_caption("fps: " + str(clock.get_fps()))
     screen.fill(pygame.Color('gray'))
+
+    
+    sprites.background.draw(screen)
 
     sprites.character_death.draw(screen)
     sprites.aroows.draw(screen)
@@ -286,8 +317,8 @@ while True:
     keys = thread.keys
  
     if sum([keys[K_w], keys[K_a], keys[K_s], keys[K_d]]):
-        for i in range(4):
-            thread.engine.key(keys[K_w], keys[K_a], keys[K_s], keys[K_d])
+        #for i in range(4):
+        thread.engine.key(keys[K_w], keys[K_a], keys[K_s], keys[K_d])
 
     for aroow in sprites.aroows:
         for obj in sprites.character:
@@ -318,6 +349,7 @@ while True:
 
     lvl[start // len(lvl[0])][start % len(lvl[0])] = 'k'
 
+    """
     for cur in sprites.character:
         if not cur.main_person:
             if cur.fps_draw % 5 == 0:
@@ -341,6 +373,7 @@ while True:
                 
                 lvl[to // len(lvl[0])][to % len(lvl[0])] = 'k'                    
             cur.fps_draw += 1
+    """
 
     for cur in sprites.character:
         if cur.xp <= 0:
@@ -368,6 +401,5 @@ while True:
             else:
                 pygame.draw.rect(screen, pygame.Color('blue'), (j * 16, i * 16, 16, 16), 1)
     """
-
     pygame.display.flip()
 

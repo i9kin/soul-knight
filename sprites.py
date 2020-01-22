@@ -6,6 +6,8 @@ character_death = pygame.sprite.Group()
 aroows = pygame.sprite.Group()
 walls = pygame.sprite.Group()
 
+background = pygame.sprite.Group()
+
 class CharacterSprite(pygame.sprite.Sprite):
     def __init__(self, sheet, x, y, main_person, group):
         self.main_person = main_person
@@ -112,10 +114,10 @@ class AroowSprite(pygame.sprite.Sprite):
         self.blitRotate((self.main_image.get_width() //2, self.main_image.get_height() // 2), angle)
 
 
-class Wall(pygame.sprite.Sprite):
+class Sprite(pygame.sprite.Sprite):
     
-    def __init__(self, image):
-        super().__init__(walls)
+    def __init__(self, image, group):
+        super().__init__(group)
         self.image = image
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)

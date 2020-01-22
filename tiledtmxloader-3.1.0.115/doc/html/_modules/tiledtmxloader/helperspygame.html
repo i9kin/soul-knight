@@ -1,0 +1,1216 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>tiledtmxloader.helperspygame &mdash; pytmxloader v3.1.0.115 documentation</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '3.1.0.115',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="pytmxloader v3.1.0.115 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pytmxloader v3.1.0.115 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for tiledtmxloader.helperspygame</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">TileMap loader for python for Tiled, a generic tile map editor</span>
+<span class="sd">from http://mapeditor.org/ .</span>
+<span class="sd">It loads the \*.tmx files produced by Tiled.</span>
+
+<span class="sd">This is the code that helps using the tmx files using pygame. In this</span>
+<span class="sd">module there is a pygame specific loader and renderer.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c"># Versioning scheme based on:</span>
+<span class="c"># http://en.wikipedia.org/wiki/Versioning#Designating_development_stage</span>
+<span class="c">#</span>
+<span class="c">#   +-- api change, probably incompatible with older versions</span>
+<span class="c">#   |     +-- enhancements but no api change</span>
+<span class="c">#   |     |</span>
+<span class="c"># major.minor[.build[.revision]]</span>
+<span class="c">#                |</span>
+<span class="c">#                +-|* 0 for alpha (status)</span>
+<span class="c">#                  |* 1 for beta (status)</span>
+<span class="c">#                  |* 2 for release candidate</span>
+<span class="c">#                  |* 3 for (public) release</span>
+<span class="c">#</span>
+<span class="c"># For instance:</span>
+<span class="c">#     * 1.2.0.1 instead of 1.2-a</span>
+<span class="c">#     * 1.2.1.2 instead of 1.2-b2 (beta with some bug fixes)</span>
+<span class="c">#     * 1.2.2.3 instead of 1.2-rc (release candidate)</span>
+<span class="c">#     * 1.2.3.0 instead of 1.2-r (commercial distribution)</span>
+<span class="c">#     * 1.2.3.5 instead of 1.2-r5 (commercial distribution with many bug fixes)</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="n">__revision__</span> <span class="o">=</span> <span class="s">&quot;$Rev: 107 $&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;3.0.0.&quot;</span> <span class="o">+</span> <span class="n">__revision__</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">u&#39;DR0ID @ 2009-2011&#39;</span>
+
+
+<span class="c">#  -----------------------------------------------------------------------------</span>
+
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
+
+<span class="kn">import</span> <span class="nn">pygame</span>
+
+<span class="kn">import</span> <span class="nn">tmxreader</span>
+
+<span class="c">#  -----------------------------------------------------------------------------</span>
+
+<span class="c">#  -----------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="ResourceLoaderPygame"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.ResourceLoaderPygame">[docs]</a><span class="k">class</span> <span class="nc">ResourceLoaderPygame</span><span class="p">(</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">AbstractResourceLoader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resource loader for pygame. Loads the images as pygame.Surfaces and saves</span>
+<span class="sd">    them in the variable indexed_tiles.</span>
+
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        res_loader = ResourceLoaderPygame()</span>
+<span class="sd">        # tile_map loaded the the TileMapParser.parse() method</span>
+<span class="sd">        res_loader.load(tile_map)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tmxreader</span><span class="o">.</span><span class="n">AbstractResourceLoader</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ResourceLoaderPygame.load"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.ResourceLoaderPygame.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tile_map</span><span class="p">):</span>
+        <span class="n">tmxreader</span><span class="o">.</span><span class="n">AbstractResourceLoader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tile_map</span><span class="p">)</span>
+        <span class="c"># delete the original images from memory, they are all saved as tiles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_img_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="c"># ISSUE 17: flipped tiles</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_map</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">layer</span><span class="o">.</span><span class="n">is_object_group</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="n">decoded_content</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">gid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexed_tiles</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">gid</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">FLIP_X</span> <span class="ow">or</span> <span class="n">gid</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">FLIP_Y</span><span class="p">:</span>
+                            <span class="n">image_gid</span> <span class="o">=</span> <span class="n">gid</span> <span class="o">&amp;</span> <span class="o">~</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FLIP_X</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">FLIP_Y</span><span class="p">)</span>
+                            <span class="n">offx</span><span class="p">,</span> <span class="n">offy</span><span class="p">,</span> <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexed_tiles</span><span class="p">[</span><span class="n">image_gid</span><span class="p">]</span>
+                            <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                            <span class="n">img</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> \
+                                                    <span class="nb">bool</span><span class="p">(</span><span class="n">gid</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">FLIP_X</span><span class="p">),</span> \
+                                                    <span class="nb">bool</span><span class="p">(</span><span class="n">gid</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">FLIP_Y</span><span class="p">))</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">indexed_tiles</span><span class="p">[</span><span class="n">gid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">offx</span><span class="p">,</span> <span class="n">offy</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_load_image_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">margin</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> \
+                          <span class="n">tile_width</span><span class="p">,</span> <span class="n">tile_height</span><span class="p">,</span> <span class="n">colorkey</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span> <span class="c">#-&gt; [images]</span>
+        <span class="n">source_img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_image</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">colorkey</span><span class="p">)</span>
+        <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">source_img</span><span class="o">.</span><span class="n">get_size</span><span class="p">()</span>
+        <span class="c"># ISSUE 16</span>
+        <span class="c"># if the image size does not match a multiple of tile_width or</span>
+        <span class="c"># tile_height it will mess up the number of tiles resulting in</span>
+        <span class="c"># wrong GID&#39;s for the tiles</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="p">(</span><span class="n">width</span> <span class="o">//</span> <span class="n">tile_width</span><span class="p">)</span> <span class="o">*</span> <span class="n">tile_width</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="p">(</span><span class="n">height</span> <span class="o">//</span> <span class="n">tile_height</span><span class="p">)</span> <span class="o">*</span> <span class="n">tile_height</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ypos</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">margin</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">tile_height</span> <span class="o">+</span> <span class="n">spacing</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">xpos</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">margin</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">tile_width</span> <span class="o">+</span> <span class="n">spacing</span><span class="p">):</span>
+                <span class="n">img_part</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_image_part</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="p">,</span> \
+                                            <span class="n">tile_width</span><span class="p">,</span> <span class="n">tile_height</span><span class="p">,</span> <span class="n">colorkey</span><span class="p">)</span>
+                <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">img_part</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">images</span>
+
+    <span class="k">def</span> <span class="nf">_load_image_part</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> \
+                                                                <span class="n">colorkey</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads a image from a sprite sheet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">source_img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_image</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">colorkey</span><span class="p">)</span>
+        <span class="c">## ISSUE 4:</span>
+        <span class="c">##  The following usage seems to be broken in pygame (1.9.1.):</span>
+        <span class="c">##  img_part = pygame.Surface((tile_width, tile_height), 0, source_img)</span>
+        <span class="n">img_part</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Surface</span><span class="p">((</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span> \
+                                    <span class="n">source_img</span><span class="o">.</span><span class="n">get_flags</span><span class="p">(),</span> \
+                                    <span class="n">source_img</span><span class="o">.</span><span class="n">get_bitsize</span><span class="p">())</span>
+        <span class="n">source_rect</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">(</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+
+        <span class="c">## ISSUE 8:</span>
+        <span class="c">## Set the colorkey BEFORE we blit the source_img</span>
+        <span class="k">if</span> <span class="n">colorkey</span><span class="p">:</span>
+            <span class="n">img_part</span><span class="o">.</span><span class="n">set_colorkey</span><span class="p">(</span><span class="n">colorkey</span><span class="p">,</span> <span class="n">pygame</span><span class="o">.</span><span class="n">RLEACCEL</span><span class="p">)</span>
+            <span class="n">img_part</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">colorkey</span><span class="p">)</span>
+
+        <span class="n">img_part</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">source_img</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">source_rect</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">img_part</span>
+
+    <span class="k">def</span> <span class="nf">_load_image_file_like</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_like_obj</span><span class="p">,</span> <span class="n">colorkey</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span> <span class="c"># -&gt; image</span>
+        <span class="c"># pygame.image.load can load from a path and from a file-like object</span>
+        <span class="c"># that is why here it is redirected to the other method</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_image</span><span class="p">(</span><span class="n">file_like_obj</span><span class="p">,</span> <span class="n">colorkey</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_load_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">colorkey</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">img</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_img_cache</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">img</span>
+        <span class="k">if</span> <span class="n">colorkey</span><span class="p">:</span>
+            <span class="n">img</span><span class="o">.</span><span class="n">set_colorkey</span><span class="p">(</span><span class="n">colorkey</span><span class="p">,</span> <span class="n">pygame</span><span class="o">.</span><span class="n">RLEACCEL</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">img</span>
+
+    <span class="c"># def get_sprites(self):</span>
+        <span class="c"># pass</span>
+
+
+
+<span class="c">#  -----------------------------------------------------------------------------</span>
+<span class="c">#  -----------------------------------------------------------------------------</span></div>
+<div class="viewcode-block" id="SpriteLayerNotCompatibleError"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayerNotCompatibleError">[docs]</a><span class="k">class</span> <span class="nc">SpriteLayerNotCompatibleError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span> <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="SpriteLayer"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayer">[docs]</a><span class="k">class</span> <span class="nc">SpriteLayer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The SpriteLayer class. This class is used by the RendererPygame.</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SpriteLayer.Sprite"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayer.Sprite">[docs]</a>    <span class="k">class</span> <span class="nc">Sprite</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The Sprite class used by the SpriteLayer class and the RendererPygame.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="n">source_rect</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Constructor.</span>
+<span class="sd">            :Parameters:</span>
+<span class="sd">                image : pygame.Surface</span>
+<span class="sd">                    the image of this sprite</span>
+<span class="sd">                rect : pygame.Rect</span>
+<span class="sd">                    the rect used when drawing</span>
+<span class="sd">                source_rect : pygame.Rect</span>
+<span class="sd">                    source area rect, defaults to None</span>
+<span class="sd">                flags : int</span>
+<span class="sd">                    flags for the blit method, defaults to 0</span>
+<span class="sd">                key : any</span>
+<span class="sd">                    used internally for collapsing sprites</span>
+
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">image</span>
+            <span class="c"># TODO: dont use a rect for position</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rect</span> <span class="o">=</span> <span class="n">rect</span> <span class="c"># blit rect</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">source_rect</span> <span class="o">=</span> <span class="n">source_rect</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="n">flags</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_flat</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
+
+<div class="viewcode-block" id="SpriteLayer.Sprite.get_draw_cond"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayer.Sprite.get_draw_cond">[docs]</a>        <span class="k">def</span> <span class="nf">get_draw_cond</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Defines if the sprite lays on the floor or if it is up-right.</span>
+
+<span class="sd">            :returns:</span>
+<span class="sd">                The bottom y coordinate so the sprites can be sorted in right</span>
+<span class="sd">                draw order.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_flat</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">top</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">bottom</span>
+</div></div>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tile_layer_idx</span><span class="p">,</span> <span class="n">resource_loader</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            tile_layer_idx : int</span>
+<span class="sd">                Index of the tile layer to build upon</span>
+<span class="sd">            resource_loader : ResourceLoaderPygame</span>
+<span class="sd">                Instance of the ResourceLoaderPygame class which has loaded</span>
+<span class="sd">                the resouces</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resource_loader</span> <span class="o">=</span> <span class="n">resource_loader</span>
+        <span class="n">_world_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_loader</span><span class="o">.</span><span class="n">world_map</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layer_idx</span> <span class="o">=</span> <span class="n">tile_layer_idx</span>
+        <span class="n">_layer</span> <span class="o">=</span> <span class="n">_world_map</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">tile_layer_idx</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tilewidth</span> <span class="o">=</span> <span class="n">_world_map</span><span class="o">.</span><span class="n">tilewidth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tileheight</span> <span class="o">=</span> <span class="n">_world_map</span><span class="o">.</span><span class="n">tileheight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_tiles_x</span> <span class="o">=</span> <span class="n">_world_map</span><span class="o">.</span><span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_tiles_y</span> <span class="o">=</span> <span class="n">_world_map</span><span class="o">.</span><span class="n">height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position_x</span> <span class="o">=</span> <span class="n">_layer</span><span class="o">.</span><span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position_y</span> <span class="o">=</span> <span class="n">_layer</span><span class="o">.</span><span class="n">y</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_level</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="c"># TODO: change scale attributes to properties?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_x</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_y</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+        <span class="c"># TODO: either change paralax_* attributes to properties</span>
+        <span class="c"># or make them private</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paralax_factor_x</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paralax_factor_y</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_object_group</span> <span class="o">=</span> <span class="n">_layer</span><span class="o">.</span><span class="n">is_object_group</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visible</span> <span class="o">=</span> <span class="n">_layer</span><span class="o">.</span><span class="n">visible</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bottom_margin</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bottom_margin</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+        <span class="c"># init data to default</span>
+        <span class="c"># self.content2D = []</span>
+        <span class="c"># generate the needed lists</span>
+        <span class="c"># for xpos in xrange(self.num_tiles_x):</span>
+            <span class="c"># self.content2D.append([None] * self.num_tiles_y)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">content2D</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_tiles_y</span>
+        <span class="k">for</span> <span class="n">ypos</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_tiles_y</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">content2D</span><span class="p">[</span><span class="n">ypos</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_tiles_x</span>
+
+        <span class="c"># fill them</span>
+        <span class="n">_img_cache</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">_img_cache</span><span class="p">[</span><span class="s">&quot;hits&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">ypos_new</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_tiles_y</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">xpos_new</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_tiles_x</span><span class="p">):</span>
+                <span class="n">coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_list_of_neighbour_coord</span><span class="p">(</span><span class="n">xpos_new</span><span class="p">,</span> <span class="n">ypos_new</span><span class="p">,</span> \
+                                        <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_tiles_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_tiles_y</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">coords</span><span class="p">:</span>
+                    <span class="n">key</span><span class="p">,</span> <span class="n">sprites</span> <span class="o">=</span> <span class="n">SpriteLayer</span><span class="o">.</span><span class="n">_get_sprites_fromt_tiled_layer</span><span class="p">(</span>\
+                            <span class="n">coords</span><span class="p">,</span> <span class="n">_layer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_loader</span><span class="o">.</span><span class="n">indexed_tiles</span><span class="p">)</span>
+
+                    <span class="n">sprite</span> <span class="o">=</span> <span class="bp">None</span>
+                    <span class="k">if</span> <span class="n">sprites</span><span class="p">:</span>
+                        <span class="n">sprite</span> <span class="o">=</span> <span class="n">SpriteLayer</span><span class="o">.</span><span class="n">_union_sprites</span><span class="p">(</span><span class="n">sprites</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> \
+                                                                    <span class="n">_img_cache</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">sprite</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">height</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bottom_margin</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_bottom_margin</span> <span class="o">=</span> <span class="n">sprite</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">height</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">content2D</span><span class="p">[</span><span class="n">ypos_new</span><span class="p">][</span><span class="n">xpos_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">sprite</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bottom_margin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bottom_margin</span>
+        <span class="k">if</span> <span class="n">__debug__</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">: Sprite Cache hits: </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> \
+                                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">_img_cache</span><span class="p">[</span><span class="s">&quot;hits&quot;</span><span class="p">])</span>
+        <span class="k">del</span> <span class="n">_img_cache</span>
+
+<div class="viewcode-block" id="SpriteLayer.get_collapse_level"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayer.get_collapse_level">[docs]</a>    <span class="k">def</span> <span class="nf">get_collapse_level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The level of collapsing.</span>
+
+<span class="sd">        :returns:</span>
+<span class="sd">            The collapse level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_level</span>
+
+    <span class="c"># TODO: test scale</span></div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="SpriteLayer.scale"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayer.scale">[docs]</a>    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="n">layer_orig</span><span class="p">,</span> <span class="n">scale_w</span><span class="p">,</span> <span class="n">scale_h</span><span class="p">):</span> <span class="c"># -&gt; sprite_layer</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Scales a layer and returns a new, scaled SpriteLayer.</span>
+
+<span class="sd">        :Note: This method is slow and inefficient</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            scale_w : float</span>
+<span class="sd">                Width scale factor in range (0, ...]</span>
+<span class="sd">            scale_h : float</span>
+<span class="sd">                Height scale factor in range (0, ...]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">layer_orig</span><span class="o">.</span><span class="n">is_object_group</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">layer</span>
+
+        <span class="n">layer</span> <span class="o">=</span> <span class="n">SpriteLayer</span><span class="p">(</span><span class="n">layer_orig</span><span class="o">.</span><span class="n">layer_idx</span><span class="p">,</span> <span class="n">layer_orig</span><span class="o">.</span><span class="n">_resource_loader</span><span class="p">)</span>
+
+        <span class="n">layer</span><span class="o">.</span><span class="n">tilewidth</span> <span class="o">=</span> <span class="n">layer_orig</span><span class="o">.</span><span class="n">tilewidth</span> <span class="o">*</span> <span class="n">scale_w</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">tileheight</span> <span class="o">=</span> <span class="n">layer_orig</span><span class="o">.</span><span class="n">tileheight</span> <span class="o">*</span> <span class="n">scale_h</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">position_x</span> <span class="o">=</span> <span class="n">layer_orig</span><span class="o">.</span><span class="n">position_x</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">position_y</span> <span class="o">=</span> <span class="n">layer_orig</span><span class="o">.</span><span class="n">position_y</span>
+
+
+        <span class="n">layer</span><span class="o">.</span><span class="n">_level</span> <span class="o">=</span> <span class="n">layer_orig</span><span class="o">.</span><span class="n">_level</span>
+
+        <span class="n">layer</span><span class="o">.</span><span class="n">paralax_factor_x</span> <span class="o">=</span> <span class="n">layer_orig</span><span class="o">.</span><span class="n">paralax_factor_x</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">paralax_factor_y</span> <span class="o">=</span> <span class="n">layer_orig</span><span class="o">.</span><span class="n">paralax_factor_y</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">sprites</span> <span class="o">=</span> <span class="n">layer_orig</span><span class="o">.</span><span class="n">sprites</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">is_object_group</span> <span class="o">=</span> <span class="n">layer_orig</span><span class="o">.</span><span class="n">is_object_group</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">visible</span> <span class="o">=</span> <span class="n">layer_orig</span><span class="o">.</span><span class="n">visible</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">scale_x</span> <span class="o">=</span> <span class="n">scale_w</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">scale_y</span> <span class="o">=</span> <span class="n">scale_h</span>
+
+        <span class="n">layer</span><span class="o">.</span><span class="n">content2D</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer_orig</span><span class="o">.</span><span class="n">content2D</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">yidx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">layer_orig</span><span class="o">.</span><span class="n">content2D</span><span class="p">):</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">content2D</span><span class="p">[</span><span class="n">yidx</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">xidx</span><span class="p">,</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">sprite</span><span class="p">:</span>
+                    <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">sprite</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">get_size</span><span class="p">()</span>
+                    <span class="n">new_w</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">scale_w</span>
+                    <span class="n">new_h</span> <span class="o">=</span> <span class="n">h</span> <span class="o">*</span> <span class="n">scale_h</span>
+                    <span class="n">rect</span> <span class="o">=</span> <span class="n">sprite</span><span class="o">.</span><span class="n">rect</span>
+                    <span class="n">image</span> <span class="o">=</span> <span class="n">sprite</span><span class="o">.</span><span class="n">image</span>
+                    <span class="c"># prevent fractional numbers and scaling glitches</span>
+                    <span class="k">if</span> <span class="n">w</span> <span class="o">!=</span> <span class="n">ceil</span><span class="p">(</span><span class="n">new_w</span><span class="p">)</span> <span class="ow">or</span> <span class="n">h</span> <span class="o">!=</span> <span class="n">ceil</span><span class="p">(</span><span class="n">new_h</span><span class="p">):</span>
+                        <span class="n">new_w</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="n">new_w</span><span class="p">)</span>
+                        <span class="n">new_h</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="n">new_h</span><span class="p">)</span>
+                        <span class="n">image</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">smoothscale</span><span class="p">(</span><span class="n">sprite</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> \
+                                                                 <span class="p">(</span><span class="n">new_w</span><span class="p">,</span> <span class="n">new_h</span><span class="p">))</span>
+                        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">sprite</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">topleft</span>
+                        <span class="n">rect</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">scale_w</span><span class="p">,</span> <span class="n">y</span> <span class="o">*</span> <span class="n">scale_h</span><span class="p">,</span> \
+                                                                <span class="n">new_w</span><span class="p">,</span> <span class="n">new_h</span><span class="p">)</span>
+
+                    <span class="n">layer</span><span class="o">.</span><span class="n">content2D</span><span class="p">[</span><span class="n">yidx</span><span class="p">][</span><span class="n">xidx</span><span class="p">]</span> <span class="o">=</span> \
+                                                <span class="n">SpriteLayer</span><span class="o">.</span><span class="n">Sprite</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">rect</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">layer</span><span class="o">.</span><span class="n">content2D</span><span class="p">[</span><span class="n">yidx</span><span class="p">][</span><span class="n">xidx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">return</span> <span class="n">layer</span>
+
+    <span class="c"># TODO: implement merge</span></div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="SpriteLayer.merge"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayer.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="n">layers</span><span class="p">):</span> <span class="c"># -&gt; sprite_layer</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Merges multiple Sprite layers into one. Only SpriteLayers are supported.</span>
+<span class="sd">        All layers need to be equal in tile size, number of tiles and layer</span>
+<span class="sd">        position. Otherwise a SpriteLayerNotCompatibleError is raised.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            layers : list</span>
+<span class="sd">                The SpriteLayer to be merged</span>
+
+<span class="sd">        :returns: new SpriteLayer with merged tiles</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tile_width</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">tile_height</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">num_tiles_x</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">num_tiles_y</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">position_x</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">position_y</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">new_layer</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">is_object_group</span><span class="p">:</span>
+                <span class="c"># skip object group layers</span>
+                <span class="k">continue</span>
+
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">SpriteLayer</span><span class="p">),</span> <span class="s">&quot;layer is not an instance of SpriteLayer&quot;</span>
+
+            <span class="c"># just use the values from first layer</span>
+            <span class="n">tile_width</span> <span class="o">=</span> <span class="n">tile_width</span> <span class="k">if</span> <span class="n">tile_width</span> <span class="k">else</span> <span class="n">layer</span><span class="o">.</span><span class="n">tile_width</span>
+            <span class="n">tile_height</span> <span class="o">=</span> <span class="n">tile_height</span> <span class="k">if</span> <span class="n">tile_height</span> <span class="k">else</span> <span class="n">layer</span><span class="o">.</span><span class="n">tile_height</span>
+            <span class="n">num_tiles_x</span> <span class="o">=</span> <span class="n">num_tiles_x</span> <span class="k">if</span> <span class="n">num_tiles_x</span> <span class="k">else</span> <span class="n">layer</span><span class="o">.</span><span class="n">num_tiles_x</span>
+            <span class="n">num_tiles_y</span> <span class="o">=</span> <span class="n">num_tiles_y</span> <span class="k">if</span> <span class="n">num_tiles_y</span> <span class="k">else</span> <span class="n">layer</span><span class="o">.</span><span class="n">num_tiles_y</span>
+            <span class="n">position_x</span> <span class="o">=</span> <span class="n">position_x</span> <span class="k">if</span> <span class="n">position_x</span> <span class="k">else</span> <span class="n">layer</span><span class="o">.</span><span class="n">position_x</span>
+            <span class="n">position_y</span> <span class="o">=</span> <span class="n">position_y</span> <span class="k">if</span> <span class="n">position_y</span> <span class="k">else</span> <span class="n">layer</span><span class="o">.</span><span class="n">position_y</span>
+
+            <span class="c"># check they are equal for all layers</span>
+            <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">tile_width</span> <span class="o">!=</span> <span class="n">tile_width</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">SpriteLayerNotCompatibleError</span><span class="p">(</span><span class="s">&quot;layers do not have same tile_width&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">tile_height</span> <span class="o">!=</span> <span class="n">tile_height</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">SpriteLayerNotCompatibleError</span><span class="p">(</span><span class="s">&quot;layers do not have same tile_height&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">num_tiles_x</span> <span class="o">!=</span> <span class="n">num_tiles_x</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">SpriteLayerNotCompatibleError</span><span class="p">(</span><span class="s">&quot;layers do not have same number of tiles in x direction&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">num_tiles_y</span> <span class="o">!=</span> <span class="n">num_tiles_y</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">SpriteLayerNotCompatibleError</span><span class="p">(</span><span class="s">&quot;layers do not have same number of tiles in y direction&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">position_x</span> <span class="o">!=</span> <span class="n">position_x</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">SpriteLayerNotCompatibleError</span><span class="p">(</span><span class="s">&quot;layers are not at same position in x&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">position_y</span> <span class="o">!=</span> <span class="n">position_y</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">SpriteLayerNotCompatibleError</span><span class="p">(</span><span class="s">&quot;layers are not at same position in y&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">new_layer</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">new_layer</span> <span class="o">=</span> <span class="n">SpriteLayer</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">layer</span><span class="o">.</span><span class="n">_resource_loader</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">ypos_new</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_tiles_y</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">xpos_new</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_tiles_x</span><span class="p">):</span>
+                    <span class="n">sprite</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">content2D</span><span class="p">[</span><span class="n">ypos_new</span><span class="p">][</span><span class="n">xpos_new</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">sprite</span><span class="p">:</span>
+                        <span class="n">new_sprite</span> <span class="o">=</span> <span class="n">new_layer</span><span class="o">.</span><span class="n">content2D</span><span class="p">[</span><span class="n">ypos_new</span><span class="p">][</span><span class="n">xpos_new</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">new_sprite</span><span class="p">:</span>
+                            <span class="k">assert</span> <span class="n">sprite</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">topleft</span> <span class="o">==</span> <span class="n">new_sprite</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">topleft</span>
+                            <span class="k">assert</span> <span class="n">sprite</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">new_sprite</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">size</span>
+                            <span class="n">new_sprite</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">sprite</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> \
+                                            <span class="n">sprite</span><span class="o">.</span><span class="n">source_rect</span><span class="p">,</span> <span class="n">sprite</span><span class="o">.</span><span class="n">flags</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">new_sprite</span> <span class="o">=</span> <span class="n">sprite</span>
+                        <span class="n">new_layer</span><span class="o">.</span><span class="n">content2D</span><span class="p">[</span><span class="n">ypos_new</span><span class="p">][</span><span class="n">xpos_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_sprite</span>
+
+        <span class="k">return</span> <span class="n">new_layer</span>
+
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="SpriteLayer.collapse"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayer.collapse">[docs]</a>    <span class="k">def</span> <span class="nf">collapse</span><span class="p">(</span><span class="n">layer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Makes 1 tile out of 4. The idea behind is that fewer tiles</span>
+<span class="sd">        are faster to render, but that is not always true.</span>
+<span class="sd">        Grouping them together into one bigger sprite is one way to get fewer</span>
+<span class="sd">        sprites.</span>
+
+<span class="sd">        :not: This only works for static layers without any dynamic sprites.</span>
+
+<span class="sd">        :note: use with caution</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            laser : SpriteLayer</span>
+<span class="sd">                The layer to collapse</span>
+
+<span class="sd">        :returns: new SpriteLayer with fewer sprites but double the size.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c">#   +    0&#39;        1&#39;        2&#39;</span>
+        <span class="c">#        0    1    2    3    4</span>
+        <span class="c">#   0&#39; 0 +----+----+----+----+</span>
+        <span class="c">#        |    |    |    |    |</span>
+        <span class="c">#      1 +----+----+----+----+</span>
+        <span class="c">#        |    |    |    |    |</span>
+        <span class="c">#   1&#39; 2 +----+----+----+----+</span>
+        <span class="c">#        |    |    |    |    |</span>
+        <span class="c">#      3 +----+----+----+----+</span>
+        <span class="c">#        |    |    |    |    |</span>
+        <span class="c">#   2&#39; 4 +----+----+----+----+</span>
+
+        <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">is_object_group</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">layer</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="n">new_tilewidth</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">tilewidth</span> <span class="o">*</span> <span class="n">level</span>
+        <span class="n">new_tileheight</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">tileheight</span> <span class="o">*</span> <span class="n">level</span>
+        <span class="n">new_num_tiles_x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">num_tiles_x</span> <span class="o">/</span> <span class="n">level</span><span class="p">)</span>
+        <span class="n">new_num_tiles_y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">num_tiles_y</span> <span class="o">/</span> <span class="n">level</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new_num_tiles_x</span> <span class="o">*</span> <span class="n">level</span> <span class="o">&lt;</span> <span class="n">layer</span><span class="o">.</span><span class="n">num_tiles_x</span><span class="p">:</span>
+            <span class="n">new_num_tiles_x</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">new_num_tiles_y</span> <span class="o">*</span> <span class="n">level</span> <span class="o">&lt;</span> <span class="n">layer</span><span class="o">.</span><span class="n">num_tiles_y</span><span class="p">:</span>
+            <span class="n">new_num_tiles_y</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c"># print &quot;old size&quot;, layer.num_tiles_x, layer.num_tiles_y</span>
+        <span class="c"># print &quot;new size&quot;, new_num_tiles_x, new_num_tiles_y</span>
+
+        <span class="n">_content2D</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">new_num_tiles_y</span>
+        <span class="c"># generate the needed lists</span>
+
+        <span class="k">for</span> <span class="n">ypos</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">new_num_tiles_y</span><span class="p">):</span>
+            <span class="n">_content2D</span><span class="p">[</span><span class="n">ypos</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">new_num_tiles_x</span>
+
+        <span class="c"># fill them</span>
+        <span class="n">_img_cache</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">_img_cache</span><span class="p">[</span><span class="s">&quot;hits&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">ypos_new</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">new_num_tiles_y</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">xpos_new</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">new_num_tiles_x</span><span class="p">):</span>
+                <span class="n">coords</span> <span class="o">=</span> <span class="n">SpriteLayer</span><span class="o">.</span><span class="n">_get_list_of_neighbour_coord</span><span class="p">(</span>\
+                                        <span class="n">xpos_new</span><span class="p">,</span> <span class="n">ypos_new</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> \
+                                        <span class="n">layer</span><span class="o">.</span><span class="n">num_tiles_x</span><span class="p">,</span> <span class="n">layer</span><span class="o">.</span><span class="n">num_tiles_y</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">coords</span><span class="p">:</span>
+                    <span class="n">sprite</span> <span class="o">=</span> <span class="n">SpriteLayer</span><span class="o">.</span><span class="n">_get_sprite_from</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> \
+                                                                    <span class="n">_img_cache</span><span class="p">)</span>
+                    <span class="n">_content2D</span><span class="p">[</span><span class="n">ypos_new</span><span class="p">][</span><span class="n">xpos_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">sprite</span>
+
+        <span class="c"># print &quot;len content2D:&quot;, len(self.content2D)</span>
+        <span class="c"># TODO: separate constructor from init code (here the layer is parsed</span>
+        <span class="c">#       for nothing, content2D will be replaced)</span>
+        <span class="n">new_layer</span> <span class="o">=</span> <span class="n">SpriteLayer</span><span class="p">(</span> <span class="n">layer</span><span class="o">.</span><span class="n">layer_idx</span><span class="p">,</span> <span class="n">layer</span><span class="o">.</span><span class="n">_resource_loader</span><span class="p">)</span>
+
+        <span class="n">new_layer</span><span class="o">.</span><span class="n">tilewidth</span>  <span class="o">=</span> <span class="n">new_tilewidth</span>
+        <span class="n">new_layer</span><span class="o">.</span><span class="n">tileheight</span> <span class="o">=</span> <span class="n">new_tileheight</span>
+        <span class="n">new_layer</span><span class="o">.</span><span class="n">num_tiles_x</span> <span class="o">=</span> <span class="n">new_num_tiles_x</span>
+        <span class="n">new_layer</span><span class="o">.</span><span class="n">num_tiles_y</span> <span class="o">=</span> <span class="n">new_num_tiles_y</span>
+        <span class="n">new_layer</span><span class="o">.</span><span class="n">content2D</span> <span class="o">=</span> <span class="n">_content2D</span>
+
+        <span class="c"># HACK:</span>
+        <span class="n">new_layer</span><span class="o">.</span><span class="n">_level</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">_level</span> <span class="o">*</span> <span class="mi">2</span>
+
+        <span class="k">if</span> <span class="n">__debug__</span> <span class="ow">and</span> <span class="n">level</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">: Sprite Cache hits: </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;collapse&quot;</span><span class="p">,</span> <span class="n">_img_cache</span><span class="p">[</span><span class="s">&quot;hits&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">new_layer</span>
+</div>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_list_of_neighbour_coord</span><span class="p">(</span><span class="n">xpos_new</span><span class="p">,</span> <span class="n">ypos_new</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> \
+                                                    <span class="n">num_tiles_x</span><span class="p">,</span> <span class="n">num_tiles_y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds the neighbours of a tile and returns them</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            xpos_new : int</span>
+<span class="sd">                x position</span>
+<span class="sd">            ypos_new : int</span>
+<span class="sd">                y position</span>
+<span class="sd">            level : int</span>
+<span class="sd">                collapse level because this uses original tiles</span>
+<span class="sd">            num_tiles_x : int</span>
+<span class="sd">                number of tiles in x direction</span>
+<span class="sd">            num_tiles_y : int</span>
+<span class="sd">                number of tiles in y direction</span>
+<span class="sd">        :Returns:</span>
+<span class="sd">            list of coordinates of the neighbour tiles</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xpos</span> <span class="o">=</span> <span class="n">xpos_new</span> <span class="o">*</span> <span class="n">level</span>
+        <span class="n">ypos</span> <span class="o">=</span> <span class="n">ypos_new</span> <span class="o">*</span> <span class="n">level</span>
+
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">ypos</span><span class="p">,</span> <span class="n">ypos</span> <span class="o">+</span> <span class="n">level</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">xpos</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">+</span> <span class="n">level</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">num_tiles_x</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="n">num_tiles_y</span><span class="p">:</span>
+                    <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">coords</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_union_sprites</span><span class="p">(</span><span class="n">sprites</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">_img_cache</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Unions sprites into one big one.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            sprites : list</span>
+<span class="sd">                list of sprites to union</span>
+<span class="sd">            key : iterable</span>
+<span class="sd">                key of the sprite, internal use only</span>
+<span class="sd">            _img_cache : dict</span>
+<span class="sd">                cache dict</span>
+<span class="sd">        :Returns:</span>
+<span class="sd">            new Sprite that unites all the given sprites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="c"># dont copy to a new image if only one sprite is in sprites</span>
+        <span class="c"># (reduce memory usage)</span>
+        <span class="c"># NOTE: this messes up the cache hits (only on non-collapsed maps)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sprites</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">sprite</span> <span class="o">=</span> <span class="n">sprites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sprite</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
+            <span class="k">return</span> <span class="n">sprite</span>
+
+        <span class="c"># combine found sprites into one sprite</span>
+        <span class="n">rect</span> <span class="o">=</span> <span class="n">sprites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">unionall</span><span class="p">(</span><span class="n">sprites</span><span class="p">)</span>
+
+        <span class="c"># cache the images to save memory</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_img_cache</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">_img_cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">_img_cache</span><span class="p">[</span><span class="s">&quot;hits&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_img_cache</span><span class="p">[</span><span class="s">&quot;hits&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># make new image</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Surface</span><span class="p">(</span><span class="n">rect</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">pygame</span><span class="o">.</span><span class="n">SRCALPHA</span> <span class="o">|</span> <span class="n">pygame</span><span class="o">.</span><span class="n">RLEACCEL</span><span class="p">)</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">fill</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">rect</span><span class="o">.</span><span class="n">topleft</span>
+            <span class="k">for</span> <span class="n">spr</span> <span class="ow">in</span> <span class="n">sprites</span><span class="p">:</span>
+                <span class="n">image</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">spr</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">spr</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">y</span><span class="p">))</span>
+
+            <span class="n">_img_cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">image</span>
+
+        <span class="k">return</span> <span class="n">SpriteLayer</span><span class="o">.</span><span class="n">Sprite</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_sprites_fromt_tiled_layer</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">indexed_tiles</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the sprites at the given coordinates from a tiled layer.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            coords : list</span>
+<span class="sd">                list of coordinates tuples</span>
+<span class="sd">            layer : TiledLayer</span>
+<span class="sd">                layer to extract the sprites from</span>
+<span class="sd">            indexed_tiles : dict</span>
+<span class="sd">                indexed tiles list loaded by the resource loader.</span>
+
+<span class="sd">        :Returns:</span>
+<span class="sd">            (keys, sprites) the new keys and sprites</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sprites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span> <span class="ow">in</span> <span class="n">coords</span><span class="p">:</span>
+            <span class="c">## ISSUE 14: maps was displayed only sqared because wrong</span>
+            <span class="c">## boundary checks</span>
+            <span class="k">if</span> <span class="n">xpos</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">content2D</span><span class="p">)</span> <span class="ow">or</span> \
+                                <span class="n">ypos</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">content2D</span><span class="p">[</span><span class="n">xpos</span><span class="p">]):</span>
+                <span class="c"># print &quot;CONTINUE&quot;, xpos, ypos</span>
+                <span class="n">key</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="c"># border and corner cases!</span>
+                <span class="k">continue</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">content2D</span><span class="p">[</span><span class="n">xpos</span><span class="p">][</span><span class="n">ypos</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">idx</span><span class="p">:</span>
+                <span class="n">offx</span><span class="p">,</span> <span class="n">offy</span><span class="p">,</span> <span class="n">img</span> <span class="o">=</span> <span class="n">indexed_tiles</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                <span class="n">world_x</span> <span class="o">=</span> <span class="n">xpos</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">tilewidth</span> <span class="o">+</span> <span class="n">offx</span>
+                <span class="n">world_y</span> <span class="o">=</span> <span class="n">ypos</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">tileheight</span> <span class="o">+</span> <span class="n">offy</span>
+                <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">get_size</span><span class="p">()</span>
+                <span class="n">rect</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">(</span><span class="n">world_x</span><span class="p">,</span> <span class="n">world_y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+                <span class="n">sprite</span> <span class="o">=</span> <span class="n">SpriteLayer</span><span class="o">.</span><span class="n">Sprite</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">idx</span><span class="p">)</span>
+                <span class="n">key</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+                <span class="n">sprites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sprite</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">key</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">key</span><span class="p">,</span> <span class="n">sprites</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_sprite_from</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">_img_cache</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get one sprite for the given coordinates on the given layer.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            coords : list</span>
+<span class="sd">                tuples of coordinates (x, y)</span>
+<span class="sd">            layer : SpriteLayer</span>
+<span class="sd">                the layer to get the united sprite from</span>
+<span class="sd">            _img_cache : dict</span>
+<span class="sd">                dict for caching, internal use only</span>
+
+<span class="sd">        :returns:</span>
+<span class="sd">            a single sprite, uniting all given sprites on the fiven coordinates.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sprites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span> <span class="ow">in</span> <span class="n">coords</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ypos</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">content2D</span><span class="p">)</span> <span class="ow">or</span> \
+                                    <span class="n">xpos</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">content2D</span><span class="p">[</span><span class="n">ypos</span><span class="p">]):</span>
+                <span class="c"># print &quot;CONTINUE&quot;, xpos, ypos</span>
+                <span class="n">key</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="c"># border and corner cases!</span>
+                <span class="k">continue</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">content2D</span><span class="p">[</span><span class="n">ypos</span><span class="p">][</span><span class="n">xpos</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">idx</span><span class="p">:</span>
+                <span class="n">sprite</span> <span class="o">=</span> <span class="n">idx</span>
+                <span class="n">key</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sprite</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+                <span class="n">sprites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sprite</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">key</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sprites</span><span class="p">:</span>
+            <span class="n">sprite</span> <span class="o">=</span> <span class="n">SpriteLayer</span><span class="o">.</span><span class="n">_union_sprites</span><span class="p">(</span><span class="n">sprites</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">_img_cache</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">__debug__</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">sprite</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">topleft</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">sprite</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> \
+                                    <span class="n">sprite</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">y</span><span class="p">),</span> \
+                                    <span class="n">layer</span><span class="o">.</span><span class="n">get_collapse_level</span><span class="p">())</span>
+
+            <span class="k">del</span> <span class="n">sprites</span>
+            <span class="k">return</span> <span class="n">sprite</span>
+
+        <span class="k">return</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="SpriteLayer.add_sprite"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayer.add_sprite">[docs]</a>    <span class="k">def</span> <span class="nf">add_sprite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sprite</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add dynamic sprite to this layer.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            sprite : SpriteLayer.Sprite</span>
+<span class="sd">                sprite to add</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sprite</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sprite</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">height</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bottom_margin</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bottom_margin</span> <span class="o">=</span> <span class="n">sprite</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">height</span>
+</div>
+<div class="viewcode-block" id="SpriteLayer.add_sprites"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayer.add_sprites">[docs]</a>    <span class="k">def</span> <span class="nf">add_sprites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sprites</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add multiple dynamic sprites to this layer.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            sprites : list</span>
+<span class="sd">                list of SpriteLayer.Sprite to add</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="n">sprites</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_sprite</span><span class="p">(</span><span class="n">sprite</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SpriteLayer.remove_sprite"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayer.remove_sprite">[docs]</a>    <span class="k">def</span> <span class="nf">remove_sprite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sprite</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes a dynamic sprite from this layer.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            sprite : SpriteLayer.Sprite</span>
+<span class="sd">                sprite to remove</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">sprite</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bottom_margin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bottom_margin</span>
+        <span class="k">for</span> <span class="n">spr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">spr</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">height</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bottom_margin</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bottom_margin</span> <span class="o">=</span> <span class="n">spr</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">height</span>
+</div>
+<div class="viewcode-block" id="SpriteLayer.remove_sprites"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayer.remove_sprites">[docs]</a>    <span class="k">def</span> <span class="nf">remove_sprites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sprites</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove multiple sprites at once.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            sprites : list</span>
+<span class="sd">                list of SpriteLayer.Sprite to remove</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="n">sprites</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_sprite</span><span class="p">(</span><span class="n">sprite</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SpriteLayer.contains_sprite"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayer.contains_sprite">[docs]</a>    <span class="k">def</span> <span class="nf">contains_sprite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sprite</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the given sprites is already in this layer.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            sprite : SpriteLayer.Sprite</span>
+<span class="sd">                sprite to check</span>
+
+<span class="sd">        :Returns:</span>
+<span class="sd">            bool, true if sprite is in this layer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">False</span>
+</div>
+<div class="viewcode-block" id="SpriteLayer.has_sprites"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayer.has_sprites">[docs]</a>    <span class="k">def</span> <span class="nf">has_sprites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if this layer has dynamic sprites at all.</span>
+
+<span class="sd">        :Returns: bool, true if it contains at least 1 dynamic sprite.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SpriteLayer.set_layer_paralax_factor"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayer.set_layer_paralax_factor">[docs]</a>    <span class="k">def</span> <span class="nf">set_layer_paralax_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor_x</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">factor_y</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the paralax factor. This is for paralax scrolling this layer.</span>
+<span class="sd">        Values x &lt; 0.0 will make the layer scroll in opposite direction</span>
+<span class="sd">        Value x == 0.0 makes the layer fix to the screen (wont scroll)</span>
+<span class="sd">        Values 0.0 &lt; x &lt; 1.0 will make scroll the layer slower.</span>
+<span class="sd">        Value x == 1.0 is default and make scroll the layer normal.</span>
+<span class="sd">        Values x &gt; 1.0 make scroll the layer faster than normal</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            factor_x : float</span>
+<span class="sd">                Paralax factor in x direction. Defaults to 1.0</span>
+<span class="sd">            factor_y : float</span>
+<span class="sd">                Paralax factor in y direction. If this is None then it will have</span>
+<span class="sd">                the same value as the factor_x argument.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paralax_factor_x</span> <span class="o">=</span> <span class="n">factor_x</span>
+        <span class="k">if</span> <span class="n">factor_y</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">paralax_factor_y</span> <span class="o">=</span> <span class="n">factor_y</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">paralax_factor_y</span> <span class="o">=</span> <span class="n">factor_x</span>
+</div>
+<div class="viewcode-block" id="SpriteLayer.get_layer_paralax_factor_x"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayer.get_layer_paralax_factor_x">[docs]</a>    <span class="k">def</span> <span class="nf">get_layer_paralax_factor_x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the current x paralax factor.</span>
+
+<span class="sd">        :Returns:</span>
+<span class="sd">            returns the current x paralax factor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">paralax_factor_x</span>
+</div>
+<div class="viewcode-block" id="SpriteLayer.get_layer_paralax_factor_y"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.SpriteLayer.get_layer_paralax_factor_y">[docs]</a>    <span class="k">def</span> <span class="nf">get_layer_paralax_factor_y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the current y paralax factor.</span>
+
+<span class="sd">        :Returns:</span>
+<span class="sd">            returns the current y paralax factor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">paralax_factor_y</span>
+
+<span class="c">#  -----------------------------------------------------------------------------</span>
+</div></div>
+<div class="viewcode-block" id="get_layers_from_map"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.get_layers_from_map">[docs]</a><span class="k">def</span> <span class="nf">get_layers_from_map</span><span class="p">(</span><span class="n">resource_loader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates SpriteLayers out of the map.</span>
+
+<span class="sd">    :Parameters:</span>
+<span class="sd">        resource_loader : ResourceLoaderPygame</span>
+<span class="sd">            a resource loader instance</span>
+
+<span class="sd">    :Returns: list of SpriteLayers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">layers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">resource_loader</span><span class="o">.</span><span class="n">world_map</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_layer_at_index</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">resource_loader</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">layers</span>
+</div>
+<div class="viewcode-block" id="get_layer_at_index"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.get_layer_at_index">[docs]</a><span class="k">def</span> <span class="nf">get_layer_at_index</span><span class="p">(</span><span class="n">layer_idx</span><span class="p">,</span> <span class="n">resource_loader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates one SpriteLayer from index out of the map.</span>
+
+<span class="sd">    :Parameters:</span>
+<span class="sd">        layer_idx : int</span>
+<span class="sd">            Index of the layer to create.</span>
+<span class="sd">        resource_loader : ResourceLoaderPygame</span>
+<span class="sd">            a resource loader instance</span>
+
+<span class="sd">    :Returns: a SpriteLayer instance</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">layer</span> <span class="o">=</span> <span class="n">resource_loader</span><span class="o">.</span><span class="n">world_map</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">layer_idx</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">is_object_group</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">layer</span>
+    <span class="k">return</span> <span class="n">SpriteLayer</span><span class="p">(</span><span class="n">layer_idx</span><span class="p">,</span> <span class="n">resource_loader</span><span class="p">)</span>
+
+<span class="c">#  -----------------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="RendererPygame"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.RendererPygame">[docs]</a><span class="k">class</span> <span class="nc">RendererPygame</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A renderer for pygame. Should be fast enough for most purposes.</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        # init</span>
+<span class="sd">        sprite_layers = get_layers_from_map(resources)</span>
+<span class="sd">        renderer = RendererPygame()</span>
+
+<span class="sd">        # in main loop</span>
+<span class="sd">        while running:</span>
+
+<span class="sd">            # move camera</span>
+<span class="sd">            renderer.set_camera_position(x, y)</span>
+
+<span class="sd">            # draw layers</span>
+<span class="sd">            for sprite_layer in sprite_layers:</span>
+<span class="sd">                renderer.render_layer(screen, sprite_layer, clip_sprites)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cam_rect</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_margin</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="c"># left, right, top, bottom</span>
+
+<div class="viewcode-block" id="RendererPygame.set_camera_position"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.RendererPygame.set_camera_position">[docs]</a>    <span class="k">def</span> <span class="nf">set_camera_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">world_pos_x</span><span class="p">,</span> <span class="n">world_pos_y</span><span class="p">,</span> <span class="n">alignment</span><span class="o">=</span><span class="s">&#39;center&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the camera position in the world.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            world_pos_x : int</span>
+<span class="sd">                position in x in world coordinates</span>
+<span class="sd">            world_pos_y : int</span>
+<span class="sd">                position in y in world coordinates</span>
+<span class="sd">            alignment : string</span>
+<span class="sd">                defines to which part of the cam rect the position belongs,</span>
+<span class="sd">                can be any pygame.Rect</span>
+<span class="sd">                attribute: &#39;center&#39;, &#39;topleft&#39;, &#39;topright&#39;, ...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cam_rect</span><span class="p">,</span> <span class="n">alignment</span><span class="p">,</span> <span class="p">(</span><span class="n">world_pos_x</span><span class="p">,</span> <span class="n">world_pos_y</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_camera_margin</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_margin</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RendererPygame.set_camera_position_and_size"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.RendererPygame.set_camera_position_and_size">[docs]</a>    <span class="k">def</span> <span class="nf">set_camera_position_and_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">world_pos_x</span><span class="p">,</span> <span class="n">world_pos_y</span><span class="p">,</span> \
+                                   <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">alignment</span><span class="o">=</span><span class="s">&#39;center&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the camera position and size in the world.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            world_pos_x : int</span>
+<span class="sd">                Position in x in world coordinates.</span>
+<span class="sd">            world_pos_y : int</span>
+<span class="sd">                Position in y in world coordinates.</span>
+<span class="sd">            witdh : int</span>
+<span class="sd">                With of the camera rect (the rendered area).</span>
+<span class="sd">            height : int</span>
+<span class="sd">                The height of the camera rect (the rendered area).</span>
+<span class="sd">            alignment : string</span>
+<span class="sd">                Defines to which part of the cam rect the position belongs,</span>
+<span class="sd">                can be any pygame.Rect</span>
+<span class="sd">                attribute: &#39;center&#39;, &#39;topleft&#39;, &#39;topright&#39;, ...</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cam_rect</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cam_rect</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cam_rect</span><span class="p">,</span> <span class="n">alignment</span><span class="p">,</span> <span class="p">(</span><span class="n">world_pos_x</span><span class="p">,</span> <span class="n">world_pos_y</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_camera_margin</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_margin</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RendererPygame.set_camera_rect"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.RendererPygame.set_camera_rect">[docs]</a>    <span class="k">def</span> <span class="nf">set_camera_rect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cam_rect_world_coord</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the camera position and size using a rect in world coordinates.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            cam_rect_world_coord : pygame.Rect</span>
+<span class="sd">                A rect describing the cameras position and size in the world.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cam_rect</span> <span class="o">=</span> <span class="n">cam_rect_world_coord</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_camera_margin</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_margin</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RendererPygame.set_camera_margin"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.RendererPygame.set_camera_margin">[docs]</a>    <span class="k">def</span> <span class="nf">set_camera_margin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">margin_left</span><span class="p">,</span> <span class="n">margin_right</span><span class="p">,</span> <span class="n">margin_top</span><span class="p">,</span> <span class="n">margin_bottom</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the margin around the camera (in pixels).</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            margin_left : int</span>
+<span class="sd">                number of pixels of the left side marging</span>
+<span class="sd">            margin_right : int</span>
+<span class="sd">                number of pixels of the right side marging</span>
+<span class="sd">            margin_top : int</span>
+<span class="sd">                number of pixels of the top side marging</span>
+<span class="sd">            margin_bottom : int</span>
+<span class="sd">                number of pixels of the left bottom marging</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_margin</span> <span class="o">=</span> <span class="p">(</span><span class="n">margin_left</span><span class="p">,</span> <span class="n">margin_right</span><span class="p">,</span> <span class="n">margin_top</span><span class="p">,</span> <span class="n">margin_bottom</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_cam_rect</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cam_rect</span><span class="p">)</span>
+        <span class="c"># adjust left margin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_cam_rect</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_cam_rect</span><span class="o">.</span><span class="n">left</span> <span class="o">-</span> <span class="n">margin_left</span>
+        <span class="c"># adjust right margin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_cam_rect</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_cam_rect</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> \
+                                                    <span class="n">margin_left</span> <span class="o">+</span> <span class="n">margin_right</span>
+        <span class="c"># adjust top margin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_cam_rect</span><span class="o">.</span><span class="n">top</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_cam_rect</span><span class="o">.</span><span class="n">top</span> <span class="o">-</span> <span class="n">margin_top</span>
+        <span class="c"># adjust bottom margin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_cam_rect</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_cam_rect</span><span class="o">.</span><span class="n">height</span> <span class="o">+</span> \
+                                                    <span class="n">margin_top</span> <span class="o">+</span> <span class="n">margin_bottom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_cam_rect</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cam_rect</span><span class="o">.</span><span class="n">left</span> <span class="o">-</span> <span class="n">margin_left</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_cam_rect</span><span class="o">.</span><span class="n">top</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cam_rect</span><span class="o">.</span><span class="n">top</span> <span class="o">-</span> <span class="n">margin_top</span>
+</div>
+<div class="viewcode-block" id="RendererPygame.render_layer"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.RendererPygame.render_layer">[docs]</a>    <span class="k">def</span> <span class="nf">render_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">surf</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">clip_sprites</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> \
+                                    <span class="n">sort_key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">spr</span><span class="p">:</span> <span class="n">spr</span><span class="o">.</span><span class="n">get_draw_cond</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Renders a layer onto the given surface.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            surf : Surface</span>
+<span class="sd">                Surface to render onto.</span>
+<span class="sd">            layer : SpriteLayer</span>
+<span class="sd">                The layer to render. Invisible layers will be skipped.</span>
+<span class="sd">            clip_sprites : boolean</span>
+<span class="sd">                Optional, defaults to True. Clip the sprites of this layer to</span>
+<span class="sd">                only draw the ones intersecting the visible part of the world.</span>
+<span class="sd">            sort_key : function</span>
+<span class="sd">                Optional: The sort function for the parameter &#39;key&#39; of the sort</span>
+<span class="sd">                method of the list.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">visible</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">is_object_group</span><span class="p">:</span>
+                <span class="k">return</span>
+
+            <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">bottom_margin</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_margin</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span>
+                <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">bottom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_margin</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_camera_margin</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">layer</span><span class="o">.</span><span class="n">bottom_margin</span><span class="p">)</span>
+
+            <span class="c"># optimizations</span>
+            <span class="n">surf_blit</span> <span class="o">=</span> <span class="n">surf</span><span class="o">.</span><span class="n">blit</span>
+            <span class="n">layer_content2D</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">content2D</span>
+
+            <span class="n">tile_h</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">tileheight</span>
+
+                        <span class="c"># self.paralax_factor_y = 1.0</span>
+            <span class="c"># self.paralax_center_x = 0.0</span>
+            <span class="n">cam_rect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_cam_rect</span>
+            <span class="c"># print &#39;cam rect:&#39;, self._cam_rect</span>
+            <span class="c"># print &#39;render r:&#39;, self._render_cam_rect</span>
+
+            <span class="n">cam_world_pos_x</span> <span class="o">=</span> <span class="n">cam_rect</span><span class="o">.</span><span class="n">left</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">paralax_factor_x</span> <span class="o">+</span> \
+                                                                <span class="n">layer</span><span class="o">.</span><span class="n">position_x</span>
+            <span class="n">cam_world_pos_y</span> <span class="o">=</span> <span class="n">cam_rect</span><span class="o">.</span><span class="n">top</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">paralax_factor_y</span> <span class="o">+</span> \
+                                                                <span class="n">layer</span><span class="o">.</span><span class="n">position_y</span>
+
+            <span class="c"># camera bounds, restricting number of tiles to draw</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cam_world_pos_x</span><span class="p">)</span> <span class="o">//</span> <span class="n">layer</span><span class="o">.</span><span class="n">tilewidth</span><span class="p">))</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cam_world_pos_x</span> <span class="o">+</span> <span class="n">cam_rect</span><span class="o">.</span><span class="n">width</span><span class="p">)</span> <span class="o">//</span> \
+                                            <span class="n">layer</span><span class="o">.</span><span class="n">tilewidth</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">top</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cam_world_pos_y</span><span class="p">)</span> <span class="o">//</span> <span class="n">tile_h</span><span class="p">))</span>
+            <span class="n">bottom</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cam_world_pos_y</span> <span class="o">+</span> <span class="n">cam_rect</span><span class="o">.</span><span class="n">height</span><span class="p">)</span> <span class="o">//</span> \
+                                            <span class="n">tile_h</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="n">left</span> <span class="o">=</span> <span class="n">left</span> <span class="k">if</span> <span class="n">left</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="n">right</span> <span class="k">if</span> <span class="n">right</span> <span class="o">&lt;</span> <span class="n">layer</span><span class="o">.</span><span class="n">num_tiles_x</span> <span class="k">else</span> <span class="n">layer</span><span class="o">.</span><span class="n">num_tiles_x</span>
+            <span class="n">top</span> <span class="o">=</span> <span class="n">top</span> <span class="k">if</span> <span class="n">top</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">bottom</span> <span class="o">=</span> <span class="n">bottom</span> <span class="k">if</span> <span class="n">bottom</span> <span class="o">&lt;</span> <span class="n">layer</span><span class="o">.</span><span class="n">num_tiles_y</span> <span class="k">else</span> <span class="n">layer</span><span class="o">.</span><span class="n">num_tiles_y</span>
+
+            <span class="c"># sprites</span>
+            <span class="n">spr_idx</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">len_sprites</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">all_sprites</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">sprites</span>
+            <span class="k">if</span> <span class="n">all_sprites</span><span class="p">:</span>
+                <span class="c"># TODO: make filter visible sprites optional (maybe sorting too)</span>
+                <span class="c"># use a marging around it</span>
+                <span class="k">if</span> <span class="n">clip_sprites</span><span class="p">:</span>
+                    <span class="n">sprites</span> <span class="o">=</span> <span class="p">[</span><span class="n">all_sprites</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> \
+                                <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">cam_rect</span><span class="o">.</span><span class="n">collidelistall</span><span class="p">(</span><span class="n">all_sprites</span><span class="p">)]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sprites</span> <span class="o">=</span> <span class="n">all_sprites</span>
+
+                <span class="c"># could happend that all sprites are not visible by the camera</span>
+                <span class="k">if</span> <span class="n">sprites</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">sort_key</span><span class="p">:</span>
+                        <span class="n">sprites</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">sort_key</span><span class="p">)</span>
+                    <span class="n">sprite</span> <span class="o">=</span> <span class="n">sprites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">len_sprites</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sprites</span><span class="p">)</span>
+
+
+            <span class="c"># render</span>
+            <span class="k">for</span> <span class="n">ypos</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">bottom</span><span class="p">):</span>
+                <span class="c"># draw sprites in this layer</span>
+                <span class="c"># (skip the ones outside visible area/map)</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">ypos</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">while</span> <span class="n">spr_idx</span> <span class="o">&lt;</span> <span class="n">len_sprites</span> <span class="ow">and</span> <span class="n">sprite</span><span class="o">.</span><span class="n">get_draw_cond</span><span class="p">()</span> <span class="o">&lt;=</span> \
+                                                                    <span class="n">y</span> <span class="o">*</span> <span class="n">tile_h</span><span class="p">:</span>
+                    <span class="n">surf_blit</span><span class="p">(</span><span class="n">sprite</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> \
+                                <span class="n">sprite</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="o">-</span><span class="n">cam_world_pos_x</span><span class="p">,</span> \
+                                                 <span class="o">-</span><span class="n">cam_world_pos_y</span> <span class="o">-</span> <span class="n">sprite</span><span class="o">.</span><span class="n">z</span><span class="p">),</span>\
+                                <span class="n">sprite</span><span class="o">.</span><span class="n">source_rect</span><span class="p">,</span> \
+                                <span class="n">sprite</span><span class="o">.</span><span class="n">flags</span><span class="p">)</span>
+                    <span class="n">spr_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">spr_idx</span> <span class="o">&lt;</span> <span class="n">len_sprites</span><span class="p">:</span>
+                        <span class="n">sprite</span> <span class="o">=</span> <span class="n">sprites</span><span class="p">[</span><span class="n">spr_idx</span><span class="p">]</span>
+                <span class="c"># next line of the map</span>
+                <span class="k">for</span> <span class="n">xpos</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+                    <span class="n">tile_sprite</span> <span class="o">=</span> <span class="n">layer_content2D</span><span class="p">[</span><span class="n">ypos</span><span class="p">][</span><span class="n">xpos</span><span class="p">]</span>
+                    <span class="c"># print &#39;?&#39;, xpos, ypos, tile_sprite</span>
+                    <span class="k">if</span> <span class="n">tile_sprite</span><span class="p">:</span>
+                        <span class="n">surf_blit</span><span class="p">(</span><span class="n">tile_sprite</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> \
+                                    <span class="n">tile_sprite</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">move</span><span class="p">(</span> <span class="o">-</span><span class="n">cam_world_pos_x</span><span class="p">,</span> \
+                                                           <span class="o">-</span><span class="n">cam_world_pos_y</span><span class="p">),</span> \
+                                    <span class="n">tile_sprite</span><span class="o">.</span><span class="n">source_rect</span><span class="p">,</span> \
+                                    <span class="n">tile_sprite</span><span class="o">.</span><span class="n">flags</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RendererPygame.pick_layer"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.RendererPygame.pick_layer">[docs]</a>    <span class="k">def</span> <span class="nf">pick_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">screen_x</span><span class="p">,</span> <span class="n">screen_y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the sprite at the given screen position or None regardless of</span>
+<span class="sd">        the layers visibility.</span>
+
+<span class="sd">        :Note: This does not work wir object group layers.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            layer : SpriteLayer</span>
+<span class="sd">                the layer to pick from</span>
+<span class="sd">            screen_x : int</span>
+<span class="sd">                The screen position in x direction.</span>
+<span class="sd">            screen_y : int</span>
+<span class="sd">                The screen position in y direction.</span>
+
+<span class="sd">        :Returns:</span>
+<span class="sd">            None if there is no sprite or the sprite</span>
+<span class="sd">            (SpriteLayer.Sprite instance).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">is_object_group</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">world_pos_x</span><span class="p">,</span> <span class="n">world_pos_y</span> <span class="o">=</span> \
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">get_world_pos</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">screen_x</span><span class="p">,</span> <span class="n">screen_y</span><span class="p">)</span>
+
+            <span class="n">tile_x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">world_pos_x</span> <span class="o">/</span> <span class="n">layer</span><span class="o">.</span><span class="n">tilewidth</span><span class="p">)</span>
+            <span class="n">tile_y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">world_pos_y</span> <span class="o">/</span> <span class="n">layer</span><span class="o">.</span><span class="n">tileheight</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">tile_x</span> <span class="o">&lt;</span> <span class="n">layer</span><span class="o">.</span><span class="n">num_tiles_x</span> <span class="ow">and</span> \
+               <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">tile_y</span> <span class="o">&lt;</span> <span class="n">layer</span><span class="o">.</span><span class="n">num_tiles_y</span><span class="p">:</span>
+                <span class="n">sprite</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">content2D</span><span class="p">[</span><span class="n">tile_y</span><span class="p">][</span><span class="n">tile_x</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">sprite</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">sprite</span>
+        <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="RendererPygame.pick_layers_sprites"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.RendererPygame.pick_layers_sprites">[docs]</a>    <span class="k">def</span> <span class="nf">pick_layers_sprites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">screen_x</span><span class="p">,</span> <span class="n">screen_y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the sprites at the given screen positions or an empty list.</span>
+<span class="sd">        The sprites are the same order as in the layers.sprites list.</span>
+
+<span class="sd">        :Note: This does not work wir object group layers.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            layer : SpriteLayer</span>
+<span class="sd">                the layer to pick from</span>
+<span class="sd">            screen_x : int</span>
+<span class="sd">                The screen position in x direction.</span>
+<span class="sd">            screen_y : int</span>
+<span class="sd">                The screen position in y direction.</span>
+
+<span class="sd">        :Returns:</span>
+<span class="sd">            A list of sprites or an empty list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">is_object_group</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">world_pos_x</span><span class="p">,</span> <span class="n">world_pos_y</span> <span class="o">=</span> \
+                                <span class="bp">self</span><span class="o">.</span><span class="n">get_world_pos</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">screen_x</span><span class="p">,</span> <span class="n">screen_y</span><span class="p">)</span>
+
+            <span class="n">r</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">(</span><span class="n">world_pos_x</span><span class="p">,</span> <span class="n">world_pos_y</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">collidelistall</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">sprites</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">layer</span><span class="o">.</span><span class="n">sprites</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[]</span>
+</div>
+<div class="viewcode-block" id="RendererPygame.get_world_pos"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspygame.RendererPygame.get_world_pos">[docs]</a>    <span class="k">def</span> <span class="nf">get_world_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">screen_x</span><span class="p">,</span> <span class="n">screen_y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the world coordinates for the given screen location and layer.</span>
+
+<span class="sd">        :Note:</span>
+<span class="sd">            this is important so one can check which entity is there in the</span>
+<span class="sd">            model (knowing which sprite is there does not help much)</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            layer : SpriteLayer</span>
+<span class="sd">                the layer to pick from</span>
+<span class="sd">            screen_x : int</span>
+<span class="sd">                The screen position in x direction.</span>
+<span class="sd">            screen_y : int</span>
+<span class="sd">                The screen position in y direction.</span>
+
+<span class="sd">        :Returns:</span>
+<span class="sd">            Tuple of world coordinates: (world_x, world_y)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># TODO: also use layer.x and layer.y offset</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">screen_x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_cam_rect</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">paralax_factor_x</span><span class="p">,</span> \
+                <span class="n">screen_y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_cam_rect</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">paralax_factor_y</span><span class="p">)</span>
+
+<span class="c">#  -----------------------------------------------------------------------------</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pytmxloader v3.1.0.115 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, DR0ID.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

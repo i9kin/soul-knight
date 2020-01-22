@@ -1,0 +1,1268 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>tiledtmxloader Package &mdash; pytmxloader v3.1.0.115 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.1.0.115',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pytmxloader v3.1.0.115 documentation" href="index.html" />
+    <link rel="next" title="test Package" href="test.html" />
+    <link rel="prev" title="Welcome to pytmxloader’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="test.html" title="test Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to pytmxloader’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pytmxloader v3.1.0.115 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tiledtmxloader-package">
+<h1>tiledtmxloader Package<a class="headerlink" href="#tiledtmxloader-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><a class="reference internal" href="#module-tiledtmxloader" title="tiledtmxloader"><tt class="xref py py-mod docutils literal"><span class="pre">tiledtmxloader</span></tt></a> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-tiledtmxloader"></span><p>TileMap loader for python for Tiled, a generic tile map editor
+from <a class="reference external" href="http://mapeditor.org/">http://mapeditor.org/</a> .
+It loads the *.tmx files produced by Tiled.</p>
+</div>
+<div class="section" id="module-tiledtmxloader.helperspygame">
+<span id="helperspygame-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">helperspygame</span></tt> Module<a class="headerlink" href="#module-tiledtmxloader.helperspygame" title="Permalink to this headline">¶</a></h2>
+<p>TileMap loader for python for Tiled, a generic tile map editor
+from <a class="reference external" href="http://mapeditor.org/">http://mapeditor.org/</a> .
+It loads the *.tmx files produced by Tiled.</p>
+<p>This is the code that helps using the tmx files using pygame. In this
+module there is a pygame specific loader and renderer.</p>
+<dl class="class">
+<dt id="tiledtmxloader.helperspygame.RendererPygame">
+<em class="property">class </em><tt class="descclassname">tiledtmxloader.helperspygame.</tt><tt class="descname">RendererPygame</tt><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#RendererPygame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.RendererPygame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A renderer for pygame. Should be fast enough for most purposes.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># init</span>
+<span class="n">sprite_layers</span> <span class="o">=</span> <span class="n">get_layers_from_map</span><span class="p">(</span><span class="n">resources</span><span class="p">)</span>
+<span class="n">renderer</span> <span class="o">=</span> <span class="n">RendererPygame</span><span class="p">()</span>
+
+<span class="c"># in main loop</span>
+<span class="k">while</span> <span class="n">running</span><span class="p">:</span>
+
+    <span class="c"># move camera</span>
+    <span class="n">renderer</span><span class="o">.</span><span class="n">set_camera_position</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="c"># draw layers</span>
+    <span class="k">for</span> <span class="n">sprite_layer</span> <span class="ow">in</span> <span class="n">sprite_layers</span><span class="p">:</span>
+        <span class="n">renderer</span><span class="o">.</span><span class="n">render_layer</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">sprite_layer</span><span class="p">,</span> <span class="n">clip_sprites</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.RendererPygame.get_world_pos">
+<tt class="descname">get_world_pos</tt><big>(</big><em>layer</em>, <em>screen_x</em>, <em>screen_y</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#RendererPygame.get_world_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.RendererPygame.get_world_pos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the world coordinates for the given screen location and layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Note :</th><td class="field-body"><p class="first">this is important so one can check which entity is there in the
+model (knowing which sprite is there does not help much)</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first docutils">
+<dt>layer <span class="classifier-delimiter">:</span> <span class="classifier">SpriteLayer</span></dt>
+<dd><p class="first last">the layer to pick from</p>
+</dd>
+<dt>screen_x <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The screen position in x direction.</p>
+</dd>
+<dt>screen_y <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The screen position in y direction.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last">Tuple of world coordinates: (world_x, world_y)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.RendererPygame.pick_layer">
+<tt class="descname">pick_layer</tt><big>(</big><em>layer</em>, <em>screen_x</em>, <em>screen_y</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#RendererPygame.pick_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.RendererPygame.pick_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the sprite at the given screen position or None regardless of
+the layers visibility.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Note :</th><td class="field-body"><p class="first">This does not work wir object group layers.</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first docutils">
+<dt>layer <span class="classifier-delimiter">:</span> <span class="classifier">SpriteLayer</span></dt>
+<dd><p class="first last">the layer to pick from</p>
+</dd>
+<dt>screen_x <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The screen position in x direction.</p>
+</dd>
+<dt>screen_y <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The screen position in y direction.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last">None if there is no sprite or the sprite
+(SpriteLayer.Sprite instance).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.RendererPygame.pick_layers_sprites">
+<tt class="descname">pick_layers_sprites</tt><big>(</big><em>layer</em>, <em>screen_x</em>, <em>screen_y</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#RendererPygame.pick_layers_sprites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.RendererPygame.pick_layers_sprites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the sprites at the given screen positions or an empty list.
+The sprites are the same order as in the layers.sprites list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Note :</th><td class="field-body"><p class="first">This does not work wir object group layers.</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first docutils">
+<dt>layer <span class="classifier-delimiter">:</span> <span class="classifier">SpriteLayer</span></dt>
+<dd><p class="first last">the layer to pick from</p>
+</dd>
+<dt>screen_x <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The screen position in x direction.</p>
+</dd>
+<dt>screen_y <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The screen position in y direction.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last">A list of sprites or an empty list.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.RendererPygame.render_layer">
+<tt class="descname">render_layer</tt><big>(</big><em>surf</em>, <em>layer</em>, <em>clip_sprites=True</em>, <em>sort_key=&lt;function &lt;lambda&gt; at 0x02F85F30&gt;</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#RendererPygame.render_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.RendererPygame.render_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Renders a layer onto the given surface.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first last docutils">
+<dt>surf <span class="classifier-delimiter">:</span> <span class="classifier">Surface</span></dt>
+<dd><p class="first last">Surface to render onto.</p>
+</dd>
+<dt>layer <span class="classifier-delimiter">:</span> <span class="classifier">SpriteLayer</span></dt>
+<dd><p class="first last">The layer to render. Invisible layers will be skipped.</p>
+</dd>
+<dt>clip_sprites <span class="classifier-delimiter">:</span> <span class="classifier">boolean</span></dt>
+<dd><p class="first last">Optional, defaults to True. Clip the sprites of this layer to
+only draw the ones intersecting the visible part of the world.</p>
+</dd>
+<dt>sort_key <span class="classifier-delimiter">:</span> <span class="classifier">function</span></dt>
+<dd><p class="first last">Optional: The sort function for the parameter &#8216;key&#8217; of the sort
+method of the list.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.RendererPygame.set_camera_margin">
+<tt class="descname">set_camera_margin</tt><big>(</big><em>margin_left</em>, <em>margin_right</em>, <em>margin_top</em>, <em>margin_bottom</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#RendererPygame.set_camera_margin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.RendererPygame.set_camera_margin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the margin around the camera (in pixels).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first last docutils">
+<dt>margin_left <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">number of pixels of the left side marging</p>
+</dd>
+<dt>margin_right <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">number of pixels of the right side marging</p>
+</dd>
+<dt>margin_top <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">number of pixels of the top side marging</p>
+</dd>
+<dt>margin_bottom <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">number of pixels of the left bottom marging</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.RendererPygame.set_camera_position">
+<tt class="descname">set_camera_position</tt><big>(</big><em>world_pos_x</em>, <em>world_pos_y</em>, <em>alignment='center'</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#RendererPygame.set_camera_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.RendererPygame.set_camera_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the camera position in the world.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first last docutils">
+<dt>world_pos_x <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">position in x in world coordinates</p>
+</dd>
+<dt>world_pos_y <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">position in y in world coordinates</p>
+</dd>
+<dt>alignment <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">defines to which part of the cam rect the position belongs,
+can be any pygame.Rect
+attribute: &#8216;center&#8217;, &#8216;topleft&#8217;, &#8216;topright&#8217;, ...</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.RendererPygame.set_camera_position_and_size">
+<tt class="descname">set_camera_position_and_size</tt><big>(</big><em>world_pos_x</em>, <em>world_pos_y</em>, <em>width</em>, <em>height</em>, <em>alignment='center'</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#RendererPygame.set_camera_position_and_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.RendererPygame.set_camera_position_and_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the camera position and size in the world.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first last docutils">
+<dt>world_pos_x <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Position in x in world coordinates.</p>
+</dd>
+<dt>world_pos_y <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Position in y in world coordinates.</p>
+</dd>
+<dt>witdh <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">With of the camera rect (the rendered area).</p>
+</dd>
+<dt>height <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The height of the camera rect (the rendered area).</p>
+</dd>
+<dt>alignment <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">Defines to which part of the cam rect the position belongs,
+can be any pygame.Rect
+attribute: &#8216;center&#8217;, &#8216;topleft&#8217;, &#8216;topright&#8217;, ...</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.RendererPygame.set_camera_rect">
+<tt class="descname">set_camera_rect</tt><big>(</big><em>cam_rect_world_coord</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#RendererPygame.set_camera_rect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.RendererPygame.set_camera_rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the camera position and size using a rect in world coordinates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first last docutils">
+<dt>cam_rect_world_coord <span class="classifier-delimiter">:</span> <span class="classifier">pygame.Rect</span></dt>
+<dd><p class="first last">A rect describing the cameras position and size in the world.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tiledtmxloader.helperspygame.ResourceLoaderPygame">
+<em class="property">class </em><tt class="descclassname">tiledtmxloader.helperspygame.</tt><tt class="descname">ResourceLoaderPygame</tt><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#ResourceLoaderPygame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.ResourceLoaderPygame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tiledtmxloader.tmxreader.AbstractResourceLoader" title="tiledtmxloader.tmxreader.AbstractResourceLoader"><tt class="xref py py-class docutils literal"><span class="pre">tiledtmxloader.tmxreader.AbstractResourceLoader</span></tt></a></p>
+<p>Resource loader for pygame. Loads the images as pygame.Surfaces and saves
+them in the variable indexed_tiles.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">res_loader</span> <span class="o">=</span> <span class="n">ResourceLoaderPygame</span><span class="p">()</span>
+<span class="c"># tile_map loaded the the TileMapParser.parse() method</span>
+<span class="n">res_loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">tile_map</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.ResourceLoaderPygame.load">
+<tt class="descname">load</tt><big>(</big><em>tile_map</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#ResourceLoaderPygame.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.ResourceLoaderPygame.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tiledtmxloader.helperspygame.SpriteLayer">
+<em class="property">class </em><tt class="descclassname">tiledtmxloader.helperspygame.</tt><tt class="descname">SpriteLayer</tt><big>(</big><em>tile_layer_idx</em>, <em>resource_loader</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>The SpriteLayer class. This class is used by the RendererPygame.</p>
+<dl class="class">
+<dt id="tiledtmxloader.helperspygame.SpriteLayer.Sprite">
+<em class="property">class </em><tt class="descname">Sprite</tt><big>(</big><em>image</em>, <em>rect</em>, <em>source_rect=None</em>, <em>flags=0</em>, <em>key=None</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayer.Sprite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayer.Sprite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>The Sprite class used by the SpriteLayer class and the RendererPygame.</p>
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.SpriteLayer.Sprite.get_draw_cond">
+<tt class="descname">get_draw_cond</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayer.Sprite.get_draw_cond"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayer.Sprite.get_draw_cond" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines if the sprite lays on the floor or if it is up-right.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">The bottom y coordinate so the sprites can be sorted in right
+draw order.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.SpriteLayer.add_sprite">
+<tt class="descclassname">SpriteLayer.</tt><tt class="descname">add_sprite</tt><big>(</big><em>sprite</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayer.add_sprite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayer.add_sprite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dynamic sprite to this layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first last docutils">
+<dt>sprite <span class="classifier-delimiter">:</span> <span class="classifier">SpriteLayer.Sprite</span></dt>
+<dd><p class="first last">sprite to add</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.SpriteLayer.add_sprites">
+<tt class="descclassname">SpriteLayer.</tt><tt class="descname">add_sprites</tt><big>(</big><em>sprites</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayer.add_sprites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayer.add_sprites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add multiple dynamic sprites to this layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first last docutils">
+<dt>sprites <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">list of SpriteLayer.Sprite to add</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="tiledtmxloader.helperspygame.SpriteLayer.collapse">
+<em class="property">static </em><tt class="descclassname">SpriteLayer.</tt><tt class="descname">collapse</tt><big>(</big><em>layer</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayer.collapse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayer.collapse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes 1 tile out of 4. The idea behind is that fewer tiles
+are faster to render, but that is not always true.
+Grouping them together into one bigger sprite is one way to get fewer
+sprites.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Not :</th><td class="field-body"><p class="first">This only works for static layers without any dynamic sprites.</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Note :</th><td class="field-body"><p class="first">use with caution</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first docutils">
+<dt>laser <span class="classifier-delimiter">:</span> <span class="classifier">SpriteLayer</span></dt>
+<dd><p class="first last">The layer to collapse</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">new SpriteLayer with fewer sprites but double the size.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.SpriteLayer.contains_sprite">
+<tt class="descclassname">SpriteLayer.</tt><tt class="descname">contains_sprite</tt><big>(</big><em>sprite</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayer.contains_sprite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayer.contains_sprite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the given sprites is already in this layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first docutils">
+<dt>sprite <span class="classifier-delimiter">:</span> <span class="classifier">SpriteLayer.Sprite</span></dt>
+<dd><p class="first last">sprite to check</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last">bool, true if sprite is in this layer</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.SpriteLayer.get_collapse_level">
+<tt class="descclassname">SpriteLayer.</tt><tt class="descname">get_collapse_level</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayer.get_collapse_level"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayer.get_collapse_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>The level of collapsing.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">The collapse level.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.SpriteLayer.get_layer_paralax_factor_x">
+<tt class="descclassname">SpriteLayer.</tt><tt class="descname">get_layer_paralax_factor_x</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayer.get_layer_paralax_factor_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayer.get_layer_paralax_factor_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the current x paralax factor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns :</th><td class="field-body">returns the current x paralax factor.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.SpriteLayer.get_layer_paralax_factor_y">
+<tt class="descclassname">SpriteLayer.</tt><tt class="descname">get_layer_paralax_factor_y</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayer.get_layer_paralax_factor_y"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayer.get_layer_paralax_factor_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the current y paralax factor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns :</th><td class="field-body">returns the current y paralax factor.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.SpriteLayer.has_sprites">
+<tt class="descclassname">SpriteLayer.</tt><tt class="descname">has_sprites</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayer.has_sprites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayer.has_sprites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if this layer has dynamic sprites at all.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns :</th><td class="field-body">bool, true if it contains at least 1 dynamic sprite.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="tiledtmxloader.helperspygame.SpriteLayer.merge">
+<em class="property">static </em><tt class="descclassname">SpriteLayer.</tt><tt class="descname">merge</tt><big>(</big><em>layers</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayer.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayer.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merges multiple Sprite layers into one. Only SpriteLayers are supported.
+All layers need to be equal in tile size, number of tiles and layer
+position. Otherwise a SpriteLayerNotCompatibleError is raised.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first docutils">
+<dt>layers <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">The SpriteLayer to be merged</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">new SpriteLayer with merged tiles</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.SpriteLayer.remove_sprite">
+<tt class="descclassname">SpriteLayer.</tt><tt class="descname">remove_sprite</tt><big>(</big><em>sprite</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayer.remove_sprite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayer.remove_sprite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a dynamic sprite from this layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first last docutils">
+<dt>sprite <span class="classifier-delimiter">:</span> <span class="classifier">SpriteLayer.Sprite</span></dt>
+<dd><p class="first last">sprite to remove</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.SpriteLayer.remove_sprites">
+<tt class="descclassname">SpriteLayer.</tt><tt class="descname">remove_sprites</tt><big>(</big><em>sprites</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayer.remove_sprites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayer.remove_sprites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove multiple sprites at once.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first last docutils">
+<dt>sprites <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">list of SpriteLayer.Sprite to remove</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="tiledtmxloader.helperspygame.SpriteLayer.scale">
+<em class="property">static </em><tt class="descclassname">SpriteLayer.</tt><tt class="descname">scale</tt><big>(</big><em>layer_orig</em>, <em>scale_w</em>, <em>scale_h</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayer.scale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayer.scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scales a layer and returns a new, scaled SpriteLayer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Note :</th><td class="field-body"><p class="first">This method is slow and inefficient</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first last docutils">
+<dt>scale_w <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Width scale factor in range (0, ...]</p>
+</dd>
+<dt>scale_h <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Height scale factor in range (0, ...]</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.helperspygame.SpriteLayer.set_layer_paralax_factor">
+<tt class="descclassname">SpriteLayer.</tt><tt class="descname">set_layer_paralax_factor</tt><big>(</big><em>factor_x=1.0</em>, <em>factor_y=None</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayer.set_layer_paralax_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayer.set_layer_paralax_factor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the paralax factor. This is for paralax scrolling this layer.
+Values x &lt; 0.0 will make the layer scroll in opposite direction
+Value x == 0.0 makes the layer fix to the screen (wont scroll)
+Values 0.0 &lt; x &lt; 1.0 will make scroll the layer slower.
+Value x == 1.0 is default and make scroll the layer normal.
+Values x &gt; 1.0 make scroll the layer faster than normal</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first last docutils">
+<dt>factor_x <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Paralax factor in x direction. Defaults to 1.0</p>
+</dd>
+<dt>factor_y <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Paralax factor in y direction. If this is None then it will have
+the same value as the factor_x argument.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="tiledtmxloader.helperspygame.SpriteLayerNotCompatibleError">
+<em class="property">exception </em><tt class="descclassname">tiledtmxloader.helperspygame.</tt><tt class="descname">SpriteLayerNotCompatibleError</tt><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#SpriteLayerNotCompatibleError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.SpriteLayerNotCompatibleError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tiledtmxloader.helperspygame.get_layer_at_index">
+<tt class="descclassname">tiledtmxloader.helperspygame.</tt><tt class="descname">get_layer_at_index</tt><big>(</big><em>layer_idx</em>, <em>resource_loader</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#get_layer_at_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.get_layer_at_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates one SpriteLayer from index out of the map.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first docutils">
+<dt>layer_idx <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Index of the layer to create.</p>
+</dd>
+<dt>resource_loader <span class="classifier-delimiter">:</span> <span class="classifier">ResourceLoaderPygame</span></dt>
+<dd><p class="first last">a resource loader instance</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last">a SpriteLayer instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="tiledtmxloader.helperspygame.get_layers_from_map">
+<tt class="descclassname">tiledtmxloader.helperspygame.</tt><tt class="descname">get_layers_from_map</tt><big>(</big><em>resource_loader</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspygame.html#get_layers_from_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspygame.get_layers_from_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates SpriteLayers out of the map.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first docutils">
+<dt>resource_loader <span class="classifier-delimiter">:</span> <span class="classifier">ResourceLoaderPygame</span></dt>
+<dd><p class="first last">a resource loader instance</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last">list of SpriteLayers</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-tiledtmxloader.helperspyglet">
+<span id="helperspyglet-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">helperspyglet</span></tt> Module<a class="headerlink" href="#module-tiledtmxloader.helperspyglet" title="Permalink to this headline">¶</a></h2>
+<p>&gt; Overview
+This program contains a sample implementation for loading a map produced
+by Tiled in pyglet. The script can be run on its own to demonstrate its
+capabilities, or the script can be imported to use its functionality. Users
+will hopefully use the ResourceLoaderPyglet already provided in this.
+Tiled may be found at <a class="reference external" href="http://mapeditor.org/">http://mapeditor.org/</a></p>
+<p>&gt; Demo Controls
+Holding the arrow keys scrolls the map.
+Holding the left shift key makes you scroll faster.
+Pressing the Esc key closes the program.</p>
+<p>&gt; Demo Features
+The map is fully viewable by scrolling.
+You can scroll outside of the bounds of the map.
+All visible layers are loaded and displayed.
+Transparency is supported. (Nothing needed to be done for this.)
+Minimal OpenGL used. (Less of a learning curve.)</p>
+<dl class="class">
+<dt id="tiledtmxloader.helperspyglet.ResourceLoaderPyglet">
+<em class="property">class </em><tt class="descclassname">tiledtmxloader.helperspyglet.</tt><tt class="descname">ResourceLoaderPyglet</tt><a class="reference internal" href="_modules/tiledtmxloader/helperspyglet.html#ResourceLoaderPyglet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspyglet.ResourceLoaderPyglet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tiledtmxloader.tmxreader.AbstractResourceLoader" title="tiledtmxloader.tmxreader.AbstractResourceLoader"><tt class="xref py py-class docutils literal"><span class="pre">tiledtmxloader.tmxreader.AbstractResourceLoader</span></tt></a></p>
+<p>Loads all tile images and lays them out on a grid.</p>
+<p>Unlike the AbstractResourceLoader this class derives from, no overridden
+methods use a colorkey parameter. A colorkey is only useful for pygame.
+This loader adds its own pyglet-specific parameter to deal with
+pyglet.image.load&#8217;s capability to work with file-like objects.</p>
+<dl class="method">
+<dt id="tiledtmxloader.helperspyglet.ResourceLoaderPyglet.load">
+<tt class="descname">load</tt><big>(</big><em>tile_map</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspyglet.html#ResourceLoaderPyglet.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspyglet.ResourceLoaderPyglet.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="tiledtmxloader.helperspyglet.demo_pyglet">
+<tt class="descclassname">tiledtmxloader.helperspyglet.</tt><tt class="descname">demo_pyglet</tt><big>(</big><em>file_name</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/helperspyglet.html#demo_pyglet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.helperspyglet.demo_pyglet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Demonstrates loading, rendering, and traversing a Tiled map in pyglet.</p>
+<p>TODO:
+Maybe use this to put topleft as origin:</p>
+<blockquote>
+<div>glMatrixMode(GL_PROJECTION);
+glLoadIdentity();
+glOrtho(0.0, (double)mTarget-&gt;w, (double)mTarget-&gt;h, 0.0, -1.0, 1.0);</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-tiledtmxloader.tmxreader">
+<span id="tmxreader-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">tmxreader</span></tt> Module<a class="headerlink" href="#module-tiledtmxloader.tmxreader" title="Permalink to this headline">¶</a></h2>
+<p>TileMap loader for python for Tiled, a generic tile map editor
+from <a class="reference external" href="http://mapeditor.org/">http://mapeditor.org/</a> .
+It loads the *.tmx files produced by Tiled.</p>
+<dl class="class">
+<dt id="tiledtmxloader.tmxreader.AbstractResourceLoader">
+<em class="property">class </em><tt class="descclassname">tiledtmxloader.tmxreader.</tt><tt class="descname">AbstractResourceLoader</tt><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#AbstractResourceLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.AbstractResourceLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Abstract base class for the resource loader.</p>
+<dl class="method">
+<dt id="tiledtmxloader.tmxreader.AbstractResourceLoader.load">
+<tt class="descname">load</tt><big>(</big><em>tile_map</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#AbstractResourceLoader.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.AbstractResourceLoader.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tiledtmxloader.tmxreader.MapObject">
+<em class="property">class </em><tt class="descclassname">tiledtmxloader.tmxreader.</tt><tt class="descname">MapObject</tt><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#MapObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.MapObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A single object on the map.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Ivariables :</th><td class="field-body"><dl class="first last docutils">
+<dt>x <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">x position relative to group x position</p>
+</dd>
+<dt>y <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">y position relative to group y position</p>
+</dd>
+<dt>width <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">width of this object</p>
+</dd>
+<dt>height <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">height of this object</p>
+</dd>
+<dt>type <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">the type of this object</p>
+</dd>
+<dt>image_source <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">source path of the image for this object</p>
+</dd>
+<dt>image <span class="classifier-delimiter">:</span> <span class="classifier">:class:TileImage</span></dt>
+<dd><p class="first last">after loading this is the pygame surface containing the image</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="tiledtmxloader.tmxreader.MapObjectGroupLayer">
+<em class="property">class </em><tt class="descclassname">tiledtmxloader.tmxreader.</tt><tt class="descname">MapObjectGroupLayer</tt><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#MapObjectGroupLayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.MapObjectGroupLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Group of objects on the map.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Ivariables :</th><td class="field-body"><dl class="first last docutils">
+<dt>x <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">the x position</p>
+</dd>
+<dt>y <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">the y position</p>
+</dd>
+<dt>width <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">width of the bounding box (usually 0, so no use)</p>
+</dd>
+<dt>height <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">height of the bounding box (usually 0, so no use)</p>
+</dd>
+<dt>name <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">name of the group</p>
+</dd>
+<dt>objects <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">list of the map objects</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="tiledtmxloader.tmxreader.MapObjectGroupLayer.convert">
+<tt class="descname">convert</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#MapObjectGroupLayer.convert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.MapObjectGroupLayer.convert" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tiledtmxloader.tmxreader.Tile">
+<em class="property">class </em><tt class="descclassname">tiledtmxloader.tmxreader.</tt><tt class="descname">Tile</tt><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#Tile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.Tile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A single tile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Ivariables :</th><td class="field-body"><dl class="first last docutils">
+<dt>id <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">id of the tile gid = TileSet.firstgid + Tile.id</p>
+</dd>
+<dt>images <span class="classifier-delimiter">:</span> <span class="classifier">list of :class:TileImage</span></dt>
+<dd><p class="first last">list of TileImage, either its &#8216;id&#8217; or &#8216;image data&#8217; will be set</p>
+</dd>
+<dt>properties <span class="classifier-delimiter">:</span> <span class="classifier">dict of name:value</span></dt>
+<dd><p class="first last">the propertis set in the editor, name-value pairs</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="tiledtmxloader.tmxreader.TileImage">
+<em class="property">class </em><tt class="descclassname">tiledtmxloader.tmxreader.</tt><tt class="descname">TileImage</tt><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#TileImage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.TileImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>An image of a tile or just an image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Ivariables :</th><td class="field-body"><dl class="first last docutils">
+<dt>id <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">id of this image (has nothing to do with gid)</p>
+</dd>
+<dt>format <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">the format as string, only &#8216;png&#8217; at the moment</p>
+</dd>
+<dt>source <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">filename of the image. either this is set or the content</p>
+</dd>
+<dt>encoding <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">encoding of the content</p>
+</dd>
+<dt>trans <span class="classifier-delimiter">:</span> <span class="classifier">tuple of (r,g,b)</span></dt>
+<dd><p class="first last">the colorkey color, raw as hex, after calling convert just a 
+(r,g,b) tuple</p>
+</dd>
+<dt>properties <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">the propertis set in the editor, name-value pairs</p>
+</dd>
+<dt>image <span class="classifier-delimiter">:</span> <span class="classifier">TileImage</span></dt>
+<dd><p class="first last">after calling load the pygame surface</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="tiledtmxloader.tmxreader.TileLayer">
+<em class="property">class </em><tt class="descclassname">tiledtmxloader.tmxreader.</tt><tt class="descname">TileLayer</tt><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#TileLayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.TileLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A layer of the world.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Ivariables :</th><td class="field-body"><dl class="first last docutils">
+<dt>x <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">position of layer in the world in number of tiles (not pixels)</p>
+</dd>
+<dt>y <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">position of layer in the world in number of tiles (not pixels)</p>
+</dd>
+<dt>width <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">number of tiles in x direction</p>
+</dd>
+<dt>height <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">number of tiles in y direction</p>
+</dd>
+<dt>pixel_width <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">width of layer in pixels</p>
+</dd>
+<dt>pixel_height <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">height of layer in pixels</p>
+</dd>
+<dt>name <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">name of this layer</p>
+</dd>
+<dt>opacity <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">float from 0 (full transparent) to 1.0 (opaque)</p>
+</dd>
+<dt>decoded_content <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first">list of graphics id going through the map:</p>
+<div class="last highlight-python"><pre>e.g [1, 1, 1, ]
+where decoded_content[0]   is (0,0)
+      decoded_content[1]   is (1,0)
+      ...
+      decoded_content[w]   is (width,0)
+      decoded_content[w+1] is (0,1)
+      ...
+      decoded_content[w * h]  is (width,height)
+
+usage: graphics id = decoded_content[tile_x + tile_y * width]</pre>
+</div>
+</dd>
+<dt>content2D <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">list of list, usage: graphics id = content2D[x][y]</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="tiledtmxloader.tmxreader.TileLayer.convert">
+<tt class="descname">convert</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#TileLayer.convert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.TileLayer.convert" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.tmxreader.TileLayer.decode">
+<tt class="descname">decode</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#TileLayer.decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.TileLayer.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the contents in a list of integers which are the gid of the 
+used tiles. If necessairy it decodes and uncompresses the contents.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.tmxreader.TileLayer.pretty_print">
+<tt class="descname">pretty_print</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#TileLayer.pretty_print"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.TileLayer.pretty_print" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tiledtmxloader.tmxreader.TileMap">
+<em class="property">class </em><tt class="descclassname">tiledtmxloader.tmxreader.</tt><tt class="descname">TileMap</tt><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#TileMap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.TileMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>The TileMap holds all the map data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Ivariables :</th><td class="field-body"><dl class="first last docutils">
+<dt>orientation <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">orthogonal or isometric or hexagonal or shifted</p>
+</dd>
+<dt>tilewidth <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">width of the tiles (for all layers)</p>
+</dd>
+<dt>tileheight <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">height of the tiles (for all layers)</p>
+</dd>
+<dt>width <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">width of the map (number of tiles)</p>
+</dd>
+<dt>height <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">height of the map (number of tiles)</p>
+</dd>
+<dt>version <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">version of the map format</p>
+</dd>
+<dt>tile_sets <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">list of TileSet</p>
+</dd>
+<dt>properties <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">the propertis set in the editor, name-value pairs, strings</p>
+</dd>
+<dt>pixel_width <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">width of the map in pixels</p>
+</dd>
+<dt>pixel_height <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">height of the map in pixels</p>
+</dd>
+<dt>layers <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">list of TileLayer</p>
+</dd>
+<dt>map_file_name <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">file name of the map</p>
+</dd>
+<dt>named_layers <span class="classifier-delimiter">:</span> <span class="classifier">dict of string:TledLayer</span></dt>
+<dd><p class="first last">dict containing {name : TileLayer}</p>
+</dd>
+<dt>named_tile_sets <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">dict containing {name : TileSet}</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="tiledtmxloader.tmxreader.TileMap.convert">
+<tt class="descname">convert</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#TileMap.convert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.TileMap.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts numerical values from strings to numerical values.
+It also calculates or set additional data:
+pixel_width
+pixel_height
+named_layers
+named_tile_sets</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.tmxreader.TileMap.decode">
+<tt class="descname">decode</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#TileMap.decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.TileMap.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes the TileLayer encoded_content and saves it in decoded_content.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tiledtmxloader.tmxreader.TileMapParser">
+<em class="property">class </em><tt class="descclassname">tiledtmxloader.tmxreader.</tt><tt class="descname">TileMapParser</tt><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#TileMapParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.TileMapParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Allows to parse and decode map files for &#8216;Tiled&#8217;, a open source map editor
+written in java. It can be found here: <a class="reference external" href="http://mapeditor.org/">http://mapeditor.org/</a></p>
+<dl class="method">
+<dt id="tiledtmxloader.tmxreader.TileMapParser.parse">
+<tt class="descname">parse</tt><big>(</big><em>file_name</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#TileMapParser.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.TileMapParser.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the given map. Does no decoding nor loading of the data.
+:return: instance of TileMap</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tiledtmxloader.tmxreader.TileMapParser.parse_decode">
+<tt class="descname">parse_decode</tt><big>(</big><em>file_name</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#TileMapParser.parse_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.TileMapParser.parse_decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the map but additionally decodes the data.
+:return: instance of TileMap</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tiledtmxloader.tmxreader.TileSet">
+<em class="property">class </em><tt class="descclassname">tiledtmxloader.tmxreader.</tt><tt class="descname">TileSet</tt><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#TileSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.TileSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A tileset holds the tiles and its images.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Ivariables :</th><td class="field-body"><dl class="first last docutils">
+<dt>firstgid <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">the first gid of this tileset</p>
+</dd>
+<dt>name <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">the name of this TileSet</p>
+</dd>
+<dt>images <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">list of TileImages</p>
+</dd>
+<dt>tiles <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">list of Tiles</p>
+</dd>
+<dt>indexed_images <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">after calling load() it is dict containing id: image</p>
+</dd>
+<dt>spacing <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">the spacing between tiles</p>
+</dd>
+<dt>marging <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">the marging of the tiles</p>
+</dd>
+<dt>properties <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">the propertis set in the editor, name-value pairs</p>
+</dd>
+<dt>tilewidth <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">the actual width of the tile, can be different from the tilewidth
+of the map</p>
+</dd>
+<dt>tilehight <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">the actual hight of th etile, can be different from the tilehight
+of the  map</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="exception">
+<dt id="tiledtmxloader.tmxreader.VersionError">
+<em class="property">exception </em><tt class="descclassname">tiledtmxloader.tmxreader.</tt><tt class="descname">VersionError</tt><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#VersionError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.VersionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tiledtmxloader.tmxreader.decode_base64">
+<tt class="descclassname">tiledtmxloader.tmxreader.</tt><tt class="descname">decode_base64</tt><big>(</big><em>in_str</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#decode_base64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.decode_base64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes a base64 string and returns it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first docutils">
+<dt>in_str <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">base64 encoded string</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">decoded string</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="tiledtmxloader.tmxreader.decompress_gzip">
+<tt class="descclassname">tiledtmxloader.tmxreader.</tt><tt class="descname">decompress_gzip</tt><big>(</big><em>in_str</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#decompress_gzip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.decompress_gzip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uncompresses a gzip string and returns it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first docutils">
+<dt>in_str <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">gzip compressed string</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">uncompressed string</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="tiledtmxloader.tmxreader.decompress_zlib">
+<tt class="descclassname">tiledtmxloader.tmxreader.</tt><tt class="descname">decompress_zlib</tt><big>(</big><em>in_str</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#decompress_zlib"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.decompress_zlib" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uncompresses a zlib string and returns it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first docutils">
+<dt>in_str <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">zlib compressed string</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">uncompressed string</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="tiledtmxloader.tmxreader.printer">
+<tt class="descclassname">tiledtmxloader.tmxreader.</tt><tt class="descname">printer</tt><big>(</big><em>obj</em>, <em>ident=''</em><big>)</big><a class="reference internal" href="_modules/tiledtmxloader/tmxreader.html#printer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tiledtmxloader.tmxreader.printer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function, prints a hirarchy of objects.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">tiledtmxloader Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">tiledtmxloader</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-tiledtmxloader.helperspygame"><tt class="docutils literal"><span class="pre">helperspygame</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-tiledtmxloader.helperspyglet"><tt class="docutils literal"><span class="pre">helperspyglet</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-tiledtmxloader.tmxreader"><tt class="docutils literal"><span class="pre">tmxreader</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to pytmxloader&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="test.html"
+                        title="next chapter">test Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/tiledtmxloader.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="test.html" title="test Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to pytmxloader’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">pytmxloader v3.1.0.115 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, DR0ID.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

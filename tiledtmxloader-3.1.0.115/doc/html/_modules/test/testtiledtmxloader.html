@@ -1,0 +1,262 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>test.testtiledtmxloader &mdash; pytmxloader v3.1.0.115 documentation</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '3.1.0.115',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="pytmxloader v3.1.0.115 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pytmxloader v3.1.0.115 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for test.testtiledtmxloader</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">))</span>
+<span class="k">print</span> <span class="s">&quot;inserting to sys.path: &quot;</span><span class="p">,</span> <span class="n">p</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+<span class="c"># print sys.path</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">unittest</span>
+
+<span class="kn">import</span> <span class="nn">tiledtmxloader</span>
+
+
+<span class="n">_has_pygame</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pygame</span>
+    <span class="n">_has_pygame</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="kn">import</span> <span class="nn">tiledtmxloader.helperspygame</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+    
+<div class="viewcode-block" id="MapLoadTestsPygame"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame">[docs]</a><span class="k">class</span> <span class="nc">MapLoadTestsPygame</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+<div class="viewcode-block" id="MapLoadTestsPygame.setUp"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_has_pygame</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s">&quot;needs either module &#39;pygame&#39; installed for testing&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resourceloader</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">helperspygame</span><span class="o">.</span><span class="n">ResourceLoaderPygame</span><span class="p">()</span>
+        
+        </div>
+<div class="viewcode-block" id="MapLoadTestsPygame.test_tile_properties"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.test_tile_properties">[docs]</a>    <span class="k">def</span> <span class="nf">test_tile_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s">&quot;implement test!! (load map with tile properties and read a tile proerty from test&quot;</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="MapLoadTestsPygame.test_wrong_sized_tileset"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.test_wrong_sized_tileset">[docs]</a>    <span class="k">def</span> <span class="nf">test_wrong_sized_tileset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_has_pygame</span><span class="p">:</span>
+            <span class="n">world_map</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">TileMapParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_decode</span><span class="p">(</span><span class="s">&quot;map.tmx&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resourceloader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">world_map</span><span class="p">)</span>
+            <span class="n">num_images</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resourceloader</span><span class="o">.</span><span class="n">indexed_tiles</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">num_images</span> <span class="o">==</span> <span class="mi">120</span><span class="p">,</span> <span class="s">&quot;should be 120 tiles, wrong number of tile images loaded: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_images</span><span class="p">))</span>
+            </div>
+<div class="viewcode-block" id="MapLoadTestsPygame.test_load_unkown_version_should_raise_exception"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.test_load_unkown_version_should_raise_exception">[docs]</a>    <span class="k">def</span> <span class="nf">test_load_unkown_version_should_raise_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">world_map</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">TileMapParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_decode</span><span class="p">(</span><span class="s">&quot;invalid_version.tmx&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s">&quot;should have raised an exception because of wrong version&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">VersionError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s">&quot;should be a VersionError exception, not: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">))</span>
+
+    
+        
+    <span class="c">#--- pygame tests ---#</span></div>
+<div class="viewcode-block" id="MapLoadTestsPygame.test_load_map_from_cur_dir"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.test_load_map_from_cur_dir">[docs]</a>    <span class="k">def</span> <span class="nf">test_load_map_from_cur_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_has_pygame</span><span class="p">:</span>
+            <span class="n">world_map</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">TileMapParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_decode</span><span class="p">(</span><span class="s">&quot;minix.tmx&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resourceloader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">world_map</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MapLoadTestsPygame.test_load_map_from_cur_dir_using_tsx"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.test_load_map_from_cur_dir_using_tsx">[docs]</a>    <span class="k">def</span> <span class="nf">test_load_map_from_cur_dir_using_tsx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_has_pygame</span><span class="p">:</span>
+            <span class="n">world_map</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">TileMapParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_decode</span><span class="p">(</span><span class="s">&quot;minix_using_tsx.tmx&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resourceloader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">world_map</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MapLoadTestsPygame.test_load_map_from_sub_dir_using_tsx"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.test_load_map_from_sub_dir_using_tsx">[docs]</a>    <span class="k">def</span> <span class="nf">test_load_map_from_sub_dir_using_tsx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_has_pygame</span><span class="p">:</span>
+            <span class="n">world_map</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">TileMapParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_decode</span><span class="p">(</span><span class="s">&quot;mini2/mini2.tmx&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resourceloader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">world_map</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MapLoadTestsPygame.test_load_map_from_sub_dir"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.test_load_map_from_sub_dir">[docs]</a>    <span class="k">def</span> <span class="nf">test_load_map_from_sub_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_has_pygame</span><span class="p">:</span>
+            <span class="n">world_map</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">TileMapParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_decode</span><span class="p">(</span><span class="s">&quot;mini2/mini2_alt.tmx&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resourceloader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">world_map</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MapLoadTestsPygame.test_load_map_from_sub_dir_using_tsx_from_sub_dir"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.test_load_map_from_sub_dir_using_tsx_from_sub_dir">[docs]</a>    <span class="k">def</span> <span class="nf">test_load_map_from_sub_dir_using_tsx_from_sub_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_has_pygame</span><span class="p">:</span>
+            <span class="n">world_map</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">TileMapParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_decode</span><span class="p">(</span><span class="s">&quot;mini3/mini3.tmx&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resourceloader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">world_map</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MapLoadTestsPygame.test_load_map_from_sub_dir_using_tsx_from_sub_dir_and_img_from_sub_dir"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.test_load_map_from_sub_dir_using_tsx_from_sub_dir_and_img_from_sub_dir">[docs]</a>    <span class="k">def</span> <span class="nf">test_load_map_from_sub_dir_using_tsx_from_sub_dir_and_img_from_sub_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_has_pygame</span><span class="p">:</span>
+            <span class="n">world_map</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">TileMapParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_decode</span><span class="p">(</span><span class="s">&quot;mini4/mini4.tmx&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resourceloader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">world_map</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MapLoadTestsPygame.test_can_load_compression_xml"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.test_can_load_compression_xml">[docs]</a>    <span class="k">def</span> <span class="nf">test_can_load_compression_xml</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_has_pygame</span><span class="p">:</span>
+            <span class="n">world_map</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">TileMapParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_decode</span><span class="p">(</span><span class="s">&quot;minix_xml.tmx&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resourceloader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">world_map</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MapLoadTestsPygame.test_can_load_compression_cvs"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.test_can_load_compression_cvs">[docs]</a>    <span class="k">def</span> <span class="nf">test_can_load_compression_cvs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_has_pygame</span><span class="p">:</span>
+            <span class="n">world_map</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">TileMapParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_decode</span><span class="p">(</span><span class="s">&quot;minix_cvs.tmx&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resourceloader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">world_map</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MapLoadTestsPygame.test_can_load_compression_base64_zlib"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.test_can_load_compression_base64_zlib">[docs]</a>    <span class="k">def</span> <span class="nf">test_can_load_compression_base64_zlib</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_has_pygame</span><span class="p">:</span>
+            <span class="n">world_map</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">TileMapParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_decode</span><span class="p">(</span><span class="s">&quot;minix_base64_zlib.tmx&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resourceloader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">world_map</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MapLoadTestsPygame.test_can_load_compression_base64_uncompressed"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.test_can_load_compression_base64_uncompressed">[docs]</a>    <span class="k">def</span> <span class="nf">test_can_load_compression_base64_uncompressed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_has_pygame</span><span class="p">:</span>
+            <span class="n">world_map</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">TileMapParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_decode</span><span class="p">(</span><span class="s">&quot;minix_base64_uncompressed.tmx&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resourceloader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">world_map</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MapLoadTestsPygame.test_can_load_compression_base64_gzip"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.test_can_load_compression_base64_gzip">[docs]</a>    <span class="k">def</span> <span class="nf">test_can_load_compression_base64_gzip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_has_pygame</span><span class="p">:</span>
+            <span class="n">world_map</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">TileMapParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_decode</span><span class="p">(</span><span class="s">&quot;minix_base64_gzip.tmx&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resourceloader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">world_map</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MapLoadTestsPygame.test_can_load_compression_base64_gzip_dtd"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.test_can_load_compression_base64_gzip_dtd">[docs]</a>    <span class="k">def</span> <span class="nf">test_can_load_compression_base64_gzip_dtd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_has_pygame</span><span class="p">:</span>
+            <span class="n">world_map</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">TileMapParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_decode</span><span class="p">(</span><span class="s">&quot;minix_base64_gzip_dtd.tmx&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resourceloader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">world_map</span><span class="p">)</span>
+            </div>
+<div class="viewcode-block" id="MapLoadTestsPygame.test_get_list_of_quad_coords"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.test_get_list_of_quad_coords">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_list_of_quad_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_has_pygame</span><span class="p">:</span>
+            <span class="n">layer</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">helperspygame</span><span class="o">.</span><span class="n">SpriteLayer</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">_get_list_of_neighbour_coord</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+            
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">_get_list_of_neighbour_coord</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+            
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">_get_list_of_neighbour_coord</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+            </div>
+<div class="viewcode-block" id="MapLoadTestsPygame.compare"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPygame.compare">[docs]</a>    <span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="n">captured</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper method to compare to lists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">captured</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Not same number of expected and captured actions! </span><span class="se">\n</span><span class="s"> expected: {0} </span><span class="se">\n</span><span class="s"> captured: {1}&quot;</span><span class="p">,</span> \
+                                    <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">expected</span><span class="p">)),</span> \
+                                    <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">captured</span><span class="p">))))</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">expected_action</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">expected</span><span class="p">):</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">captured</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="o">!=</span> <span class="n">expected_action</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;captured action does not match with expected action! </span><span class="se">\n</span><span class="s"> expected: {0} </span><span class="se">\n</span><span class="s"> captured: {1}&quot;</span><span class="p">,</span> \
+                                    <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">expected</span><span class="p">)),</span> \
+                                    <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">captured</span><span class="p">))))</span>
+
+    
+<span class="c">#  -----------------------------------------------------------------------------</span>
+</div></div>
+<span class="n">_has_pyglet</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pyglet</span>
+    <span class="n">_has_pyglet</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="kn">import</span> <span class="nn">tiledtmxloader.helperspyglet</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="MapLoadTestsPyglet"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPyglet">[docs]</a><span class="k">class</span> <span class="nc">MapLoadTestsPyglet</span><span class="p">(</span><span class="n">MapLoadTestsPygame</span><span class="p">):</span>
+
+<div class="viewcode-block" id="MapLoadTestsPyglet.setUp"><a class="viewcode-back" href="../../test.html#test.testtiledtmxloader.MapLoadTestsPyglet.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_has_pyglet</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s">&quot;needs either module &#39;pyglet&#39; installed for testing&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resourceloader</span> <span class="o">=</span> <span class="n">tiledtmxloader</span><span class="o">.</span><span class="n">helperspyglet</span><span class="o">.</span><span class="n">ResourceLoaderPyglet</span><span class="p">()</span>
+            
+
+</div></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+            
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pytmxloader v3.1.0.115 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, DR0ID.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

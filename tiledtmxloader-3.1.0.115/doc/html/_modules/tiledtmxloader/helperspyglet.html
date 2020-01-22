@@ -1,0 +1,368 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>tiledtmxloader.helperspyglet &mdash; pytmxloader v3.1.0.115 documentation</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '3.1.0.115',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="pytmxloader v3.1.0.115 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pytmxloader v3.1.0.115 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for tiledtmxloader.helperspyglet</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt; Overview</span>
+<span class="sd">This program contains a sample implementation for loading a map produced</span>
+<span class="sd">by Tiled in pyglet. The script can be run on its own to demonstrate its</span>
+<span class="sd">capabilities, or the script can be imported to use its functionality. Users</span>
+<span class="sd">will hopefully use the ResourceLoaderPyglet already provided in this.</span>
+<span class="sd">Tiled may be found at http://mapeditor.org/</span>
+
+<span class="sd">&gt; Demo Controls</span>
+<span class="sd">Holding the arrow keys scrolls the map.</span>
+<span class="sd">Holding the left shift key makes you scroll faster.</span>
+<span class="sd">Pressing the Esc key closes the program.</span>
+
+<span class="sd">&gt; Demo Features</span>
+<span class="sd">The map is fully viewable by scrolling.</span>
+<span class="sd">You can scroll outside of the bounds of the map.</span>
+<span class="sd">All visible layers are loaded and displayed.</span>
+<span class="sd">Transparency is supported. (Nothing needed to be done for this.)</span>
+<span class="sd">Minimal OpenGL used. (Less of a learning curve.)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c"># Versioning scheme based on: http://en.wikipedia.org/wiki/Versioning#Designating_development_stage</span>
+<span class="c">#</span>
+<span class="c">#   +-- api change, probably incompatible with older versions</span>
+<span class="c">#   |     +-- enhancements but no api change</span>
+<span class="c">#   |     |</span>
+<span class="c"># major.minor[.build[.revision]]</span>
+<span class="c">#                |</span>
+<span class="c">#                +-|* 0 for alpha (status)</span>
+<span class="c">#                  |* 1 for beta (status)</span>
+<span class="c">#                  |* 2 for release candidate</span>
+<span class="c">#                  |* 3 for (public) release</span>
+<span class="c">#</span>
+<span class="c"># For instance:</span>
+<span class="c">#     * 1.2.0.1 instead of 1.2-a</span>
+<span class="c">#     * 1.2.1.2 instead of 1.2-b2 (beta with some bug fixes)</span>
+<span class="c">#     * 1.2.2.3 instead of 1.2-rc (release candidate)</span>
+<span class="c">#     * 1.2.3.0 instead of 1.2-r (commercial distribution)</span>
+<span class="c">#     * 1.2.3.5 instead of 1.2-r5 (commercial distribution with many bug fixes)</span>
+
+<span class="n">__revision__</span> <span class="o">=</span> <span class="s">&quot;$Rev: 107 $&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;3.0.0.&quot;</span> <span class="o">+</span> <span class="n">__revision__</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">u&#39;DR0ID @ 2009-2011&#39;</span>
+
+
+<span class="c">#  -----------------------------------------------------------------------------</span>
+
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">xml.dom</span> <span class="kn">import</span> <span class="n">minidom</span><span class="p">,</span> <span class="n">Node</span>
+<span class="kn">import</span> <span class="nn">StringIO</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+
+<span class="kn">import</span> <span class="nn">pyglet</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">tmxreader</span>
+
+<span class="c">#  -----------------------------------------------------------------------------</span>
+
+<span class="c"># [20:31]	bjorn: Of course, for fastest rendering, you would combine the used </span>
+<span class="c"># tiles into a single texture and set up arrays of vertex and texture coordinates.</span>
+<span class="c"># .. so that the video card can dump the map to the screen without having to </span>
+<span class="c"># analyze the tile data again and again.</span>
+
+<div class="viewcode-block" id="ResourceLoaderPyglet"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspyglet.ResourceLoaderPyglet">[docs]</a><span class="k">class</span> <span class="nc">ResourceLoaderPyglet</span><span class="p">(</span><span class="n">tmxreader</span><span class="o">.</span><span class="n">AbstractResourceLoader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Loads all tile images and lays them out on a grid.</span>
+
+<span class="sd">    Unlike the AbstractResourceLoader this class derives from, no overridden</span>
+<span class="sd">    methods use a colorkey parameter. A colorkey is only useful for pygame.</span>
+<span class="sd">    This loader adds its own pyglet-specific parameter to deal with</span>
+<span class="sd">    pyglet.image.load&#39;s capability to work with file-like objects.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ResourceLoaderPyglet.load"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspyglet.ResourceLoaderPyglet.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tile_map</span><span class="p">):</span>
+        <span class="n">tmxreader</span><span class="o">.</span><span class="n">AbstractResourceLoader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tile_map</span><span class="p">)</span>
+        <span class="c"># ISSUE 17: flipped tiles</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_map</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="n">decoded_content</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">gid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexed_tiles</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">gid</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">FLIP_X</span> <span class="ow">or</span> <span class="n">gid</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">FLIP_Y</span><span class="p">:</span>
+                        <span class="n">image_gid</span> <span class="o">=</span> <span class="n">gid</span> <span class="o">&amp;</span> <span class="o">~</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FLIP_X</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">FLIP_Y</span><span class="p">)</span>
+                        <span class="n">offx</span><span class="p">,</span> <span class="n">offy</span><span class="p">,</span> <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexed_tiles</span><span class="p">[</span><span class="n">image_gid</span><span class="p">]</span>
+                        <span class="c"># TODO: how to flip it? this does mix textures and image classes</span>
+                        <span class="n">img</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+                        <span class="n">tex</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">get_texture</span><span class="p">()</span>
+                        <span class="n">tex</span><span class="o">.</span><span class="n">anchor_x</span> <span class="o">=</span> <span class="n">tex</span><span class="o">.</span><span class="n">width</span> <span class="o">//</span> <span class="mi">2</span>
+                        <span class="n">tex</span><span class="o">.</span><span class="n">anchor_y</span> <span class="o">=</span> <span class="n">tex</span><span class="o">.</span><span class="n">height</span> <span class="o">//</span> <span class="mi">2</span>
+                        <span class="n">tex2</span> <span class="o">=</span> <span class="n">tex</span><span class="o">.</span><span class="n">get_transform</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">gid</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">FLIP_X</span><span class="p">),</span> <span class="nb">bool</span><span class="p">(</span><span class="n">gid</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">FLIP_Y</span><span class="p">))</span>
+                        <span class="c"># img2 = pyglet.image.ImageDataRegion(img.x, img.y, tex2.width, tex2.height, tex2.image_data))</span>
+                        <span class="n">tex</span><span class="o">.</span><span class="n">anchor_x</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="n">tex</span><span class="o">.</span><span class="n">anchor_y</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">indexed_tiles</span><span class="p">[</span><span class="n">gid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">offx</span><span class="p">,</span> <span class="n">offy</span><span class="p">,</span> <span class="n">tex2</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_load_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">fileobj</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a single image.</span>
+
+<span class="sd">        Images are loaded only once. Subsequence loads call upon a cache.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            filename : string</span>
+<span class="sd">                Path to the file to be loaded.</span>
+<span class="sd">            fileobj : file</span>
+<span class="sd">                A file-like object which pyglet can decode.</span>
+
+<span class="sd">        :rtype: A subclass of AbstractImage.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">img</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fileobj</span><span class="p">:</span>
+                <span class="n">img</span> <span class="o">=</span> <span class="n">pyglet</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">fileobj</span><span class="p">,</span>
+                    <span class="n">pyglet</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">codecs</span><span class="o">.</span><span class="n">get_decoders</span><span class="p">(</span><span class="s">&quot;*.png&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">img</span> <span class="o">=</span> <span class="n">pyglet</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_img_cache</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">img</span>
+        <span class="k">return</span> <span class="n">img</span>
+
+    <span class="k">def</span> <span class="nf">_load_image_part</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a section of an image and returns its ImageDataRegion.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_image</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">get_region</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_load_image_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">margin</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">tile_width</span><span class="p">,</span> <span class="n">tile_height</span><span class="p">,</span> <span class="n">colorkey</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load different tile images from one source image.</span>
+
+<span class="sd">        :Parameters:</span>
+<span class="sd">            filename : string</span>
+<span class="sd">                Path to image to be loaded.</span>
+<span class="sd">            margin : int</span>
+<span class="sd">                The margin around the image.</span>
+<span class="sd">            spacing : int</span>
+<span class="sd">                The space between the tile images.</span>
+<span class="sd">            tilewidth : int</span>
+<span class="sd">                The width of a single tile.</span>
+<span class="sd">            tileheight : int</span>
+<span class="sd">                The height of a single tile.</span>
+<span class="sd">            colorkey : ???</span>
+<span class="sd">                Unused. (Intended for pygame.)</span>
+
+<span class="sd">        :rtype: A list of images.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">source_img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_image</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="c"># ISSUE 16 fixed wrong sized tilesets</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="p">(</span><span class="n">source_img</span><span class="o">.</span><span class="n">height</span> <span class="o">//</span> <span class="n">tile_height</span><span class="p">)</span> <span class="o">*</span> <span class="n">tile_height</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="p">(</span><span class="n">source_img</span><span class="o">.</span><span class="n">width</span> <span class="o">//</span> <span class="n">tile_width</span><span class="p">)</span> <span class="o">*</span> <span class="n">tile_width</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c"># Reverse the map column reading to compensate for pyglet&#39;s y-origin.</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">height</span> <span class="o">-</span> <span class="n">tile_height</span><span class="p">,</span> <span class="n">margin</span> <span class="o">-</span> <span class="n">tile_height</span><span class="p">,</span> <span class="o">-</span><span class="n">tile_height</span> <span class="o">-</span> <span class="n">spacing</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">margin</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">tile_width</span> <span class="o">+</span> <span class="n">spacing</span><span class="p">):</span>
+                <span class="n">img_part</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_image_part</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">tile_width</span><span class="p">,</span> <span class="n">tile_height</span><span class="p">)</span>
+                <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">img_part</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">images</span>
+
+    <span class="k">def</span> <span class="nf">_load_image_file_like</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_like_obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Loads a file-like object and returns its subclassed AbstractImage.&quot;&quot;&quot;</span>
+        <span class="c"># TODO: Ask myself why this extra indirection is necessary.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_image</span><span class="p">(</span><span class="n">file_like_obj</span><span class="p">,</span> <span class="n">file_like_obj</span><span class="p">)</span>
+
+
+<span class="c">#  -----------------------------------------------------------------------------</span>
+
+</div>
+<div class="viewcode-block" id="demo_pyglet"><a class="viewcode-back" href="../../tiledtmxloader.html#tiledtmxloader.helperspyglet.demo_pyglet">[docs]</a><span class="k">def</span> <span class="nf">demo_pyglet</span><span class="p">(</span><span class="n">file_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Demonstrates loading, rendering, and traversing a Tiled map in pyglet.</span>
+<span class="sd">    </span>
+<span class="sd">    TODO:</span>
+<span class="sd">    Maybe use this to put topleft as origin:</span>
+<span class="sd">        glMatrixMode(GL_PROJECTION);</span>
+<span class="sd">        glLoadIdentity();</span>
+<span class="sd">        glOrtho(0.0, (double)mTarget-&gt;w, (double)mTarget-&gt;h, 0.0, -1.0, 1.0);</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">import</span> <span class="nn">pyglet</span>
+    <span class="kn">from</span> <span class="nn">pyglet.gl</span> <span class="kn">import</span> <span class="n">glTranslatef</span><span class="p">,</span> <span class="n">glLoadIdentity</span>
+
+    <span class="n">world_map</span> <span class="o">=</span> <span class="n">tmxreader</span><span class="o">.</span><span class="n">TileMapParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_decode</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+    <span class="c"># delta is the x/y position of the map view.</span>
+    <span class="c"># delta is a list so that it can be accessed from the on_draw method of</span>
+    <span class="c"># window and the update function. Note that the position is in integers to</span>
+    <span class="c"># match Pyglet Sprites. Using floating-point numbers causes graphical</span>
+    <span class="c"># problems. See http://groups.google.com/group/pyglet-users/browse_thread/thread/52f9ae1ef7b0c8fa?pli=1</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="o">-</span><span class="n">world_map</span><span class="o">.</span><span class="n">pixel_height</span><span class="o">+</span><span class="mi">150</span><span class="p">]</span>
+    <span class="n">frames_per_sec</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">30.0</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">pyglet</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">Window</span><span class="p">()</span>
+
+    <span class="nd">@window.event</span>
+    <span class="k">def</span> <span class="nf">on_draw</span><span class="p">():</span>
+        <span class="n">window</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="c"># Reset the &quot;eye&quot; back to the default location.</span>
+        <span class="n">glLoadIdentity</span><span class="p">()</span>
+        <span class="c"># Move the &quot;eye&quot; to the current location on the map.</span>
+        <span class="n">glTranslatef</span><span class="p">(</span><span class="n">delta</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">delta</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="c"># TODO: [21:03]	thorbjorn: DR0ID_: You can generally determine the range of tiles that are visible before your drawing loop, which is much faster than looping over all tiles and checking whether it is visible for each of them.</span>
+        <span class="c"># [21:06]	DR0ID_: probably would have to rewrite the pyglet demo to use a similar render loop as you mentioned</span>
+        <span class="c"># [21:06]	thorbjorn: Yeah.</span>
+        <span class="c"># [21:06]	DR0ID_: I&#39;ll keep your suggestion in mind, thanks</span>
+        <span class="c"># [21:06]	thorbjorn: I haven&#39;t written a specific OpenGL renderer yet, so not sure what&#39;s the best approach for a tile map.</span>
+        <span class="c"># [21:07]	thorbjorn: Best to create a single texture with all your tiles, bind it, set up your vertex arrays and fill it with the coordinates of the tiles currently on the screen, and then let OpenGL draw the bunch.</span>
+        <span class="c"># [21:08]	DR0ID_: for each layer?</span>
+        <span class="c"># [21:08]	DR0ID_: yeah, probably a good approach</span>
+        <span class="c"># [21:09]	thorbjorn: Ideally for all layers at the same time, if you don&#39;t have to draw anything in between.</span>
+        <span class="c"># [21:09]	DR0ID_: well, the NPC and other dynamic things need to be drawn in between, right?</span>
+        <span class="c"># [21:09]	thorbjorn: Right, so maybe once for the bottom layers, then your complicated stuff, and then another time for the layers on top.</span>
+
+        <span class="n">batch</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">pyglet</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">KeyStateHandler</span><span class="p">()</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">push_handlers</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
+    <span class="n">resources</span> <span class="o">=</span> <span class="n">ResourceLoaderPyglet</span><span class="p">()</span>
+    <span class="n">resources</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">world_map</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">dt</span><span class="p">):</span>
+        <span class="c"># The speed is 3 by default.</span>
+        <span class="c"># When left Shift is held, the speed increases.</span>
+        <span class="c"># The speed interpolates based on time passed, so the demo navigates</span>
+        <span class="c"># at a reasonable pace even on huge maps.</span>
+        <span class="n">speed</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span> <span class="o">+</span> <span class="n">keys</span><span class="p">[</span><span class="n">pyglet</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">LSHIFT</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">)</span> <span class="o">*</span> \
+                <span class="nb">int</span><span class="p">(</span><span class="n">dt</span> <span class="o">/</span> <span class="n">frames_per_sec</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">keys</span><span class="p">[</span><span class="n">pyglet</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">LEFT</span><span class="p">]:</span>
+            <span class="n">delta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">speed</span>
+        <span class="k">if</span> <span class="n">keys</span><span class="p">[</span><span class="n">pyglet</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">RIGHT</span><span class="p">]:</span>
+            <span class="n">delta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">speed</span>
+        <span class="k">if</span> <span class="n">keys</span><span class="p">[</span><span class="n">pyglet</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">UP</span><span class="p">]:</span>
+            <span class="n">delta</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="n">speed</span>
+        <span class="k">if</span> <span class="n">keys</span><span class="p">[</span><span class="n">pyglet</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">DOWN</span><span class="p">]:</span>
+            <span class="n">delta</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">speed</span>
+
+    <span class="c"># Generate the graphics for every visible tile.</span>
+    <span class="n">batch</span> <span class="o">=</span> <span class="n">pyglet</span><span class="o">.</span><span class="n">graphics</span><span class="o">.</span><span class="n">Batch</span><span class="p">()</span>
+    <span class="n">sprites</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">group_num</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">world_map</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">layer</span><span class="o">.</span><span class="n">visible</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">is_object_group</span><span class="p">:</span>
+            <span class="c"># This is unimplemented in this minimal-case example code.</span>
+            <span class="c"># Should you as a user of tmxreader need this layer,</span>
+            <span class="c"># I hope to have a separate demo using objects as well.</span>
+            <span class="k">continue</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">pyglet</span><span class="o">.</span><span class="n">graphics</span><span class="o">.</span><span class="n">OrderedGroup</span><span class="p">(</span><span class="n">group_num</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ytile</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">xtile</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
+                <span class="n">image_id</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">content2D</span><span class="p">[</span><span class="n">xtile</span><span class="p">][</span><span class="n">ytile</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">image_id</span><span class="p">:</span>
+                    <span class="n">image_file</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">indexed_tiles</span><span class="p">[</span><span class="n">image_id</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="c"># The loader needed to load the images upside-down to match</span>
+                    <span class="c"># the tiles to their correct images. This reversal must be</span>
+                    <span class="c"># done again to render the rows in the correct order.</span>
+                    <span class="n">sprites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pyglet</span><span class="o">.</span><span class="n">sprite</span><span class="o">.</span><span class="n">Sprite</span><span class="p">(</span><span class="n">image_file</span><span class="p">,</span>
+                        <span class="n">world_map</span><span class="o">.</span><span class="n">tilewidth</span> <span class="o">*</span> <span class="n">xtile</span><span class="p">,</span>
+                        <span class="n">world_map</span><span class="o">.</span><span class="n">tileheight</span> <span class="o">*</span> <span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="n">ytile</span><span class="p">),</span>
+                        <span class="n">batch</span><span class="o">=</span><span class="n">batch</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">))</span>
+
+    <span class="n">pyglet</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">schedule_interval</span><span class="p">(</span><span class="n">update</span><span class="p">,</span> <span class="n">frames_per_sec</span><span class="p">)</span>
+    <span class="n">pyglet</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+
+<span class="c">#  -----------------------------------------------------------------------------</span>
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c"># import cProfile</span>
+    <span class="c"># cProfile.run(&#39;main()&#39;, &quot;stats.profile&quot;)</span>
+    <span class="c"># import pstats</span>
+    <span class="c"># p = pstats.Stats(&quot;stats.profile&quot;)</span>
+    <span class="c"># p.strip_dirs()</span>
+    <span class="c"># p.sort_stats(&#39;time&#39;)</span>
+    <span class="c"># p.print_stats()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">demo_pyglet</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Usage: python </span><span class="si">%s</span><span class="s"> your_map.tmx&#39;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pytmxloader v3.1.0.115 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, DR0ID.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

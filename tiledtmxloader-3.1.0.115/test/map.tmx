@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
+<map version="1.0" orientation="orthogonal" width="100" height="50" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="watertileset3qb2tg0" tilewidth="32" tileheight="32">
+  <image source="watertileset3qb2tg0.png"/>
+ </tileset>
+ <layer name="Tile Layer 2" width="100" height="50">
+  <data encoding="base64" compression="zlib">
+   eJztymc7FmAAQOHXniErZZO9QkpkK6PsvbdSVkR+fucvPM9X51zX/e0kEmZmZvElIRkpSEUa0pGBTGQhGznIjfgtrBfIQz4K8BKFKEIxSlCKVyiL+C2s13iDclSgElWoRg1qUYd6vI34LawGNKIJzWhBK9rQjg50ogvvIn4Lqxs96MV79OEDPqIfnzCAQXyO+C2sIQxjBKMYwzgmMIkv+IopTEf8FtYMZvEN3zGHeSxgEUtYxgpWI34Law3r2MAmtrCNHexiD/s4wGHEb2Ed4RgnOMUZzvEDP3GBX/iNy4jfwrrCNW5wiz+4wz3+4gGP+IeniN/MzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzsufYfzy84uQ==
+  </data>
+ </layer>
+</map>

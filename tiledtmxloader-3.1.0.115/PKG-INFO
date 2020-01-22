@@ -1,0 +1,24 @@
+Metadata-Version: 1.0
+Name: tiledtmxloader
+Version: 3.1.0.115
+Summary: UNKNOWN
+Home-page: https://code.google.com/p/pytmxloader/
+Author: DR0ID
+Author-email: dr0iddr0id@gmail.com
+License: New BSD License
+Download-URL: https://code.google.com/p/pytmxloader/downloads/list
+Description: 
+        TileMap loader for python for Tiled, a generic tile map editor
+        from http://mapeditor.org/ .
+        It loads the \*.tmx files produced by Tiled.
+        
+        
+        
+Keywords: pygame tiled mapeditor game map
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 2
+Classifier: License :: OSI Approved :: New BSD License

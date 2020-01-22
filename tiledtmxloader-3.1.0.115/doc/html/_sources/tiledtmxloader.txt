@@ -1,0 +1,35 @@
+tiledtmxloader Package
+======================
+
+:mod:`tiledtmxloader` Package
+-----------------------------
+
+.. automodule:: tiledtmxloader
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`helperspygame` Module
+---------------------------
+
+.. automodule:: tiledtmxloader.helperspygame
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`helperspyglet` Module
+---------------------------
+
+.. automodule:: tiledtmxloader.helperspyglet
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`tmxreader` Module
+-----------------------
+
+.. automodule:: tiledtmxloader.tmxreader
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

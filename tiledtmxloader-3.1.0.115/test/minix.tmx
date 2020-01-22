@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
+<map version="1.0" orientation="orthogonal" width="102" height="66" tilewidth="24" tileheight="28">
+ <tileset firstgid="1" name="mini2x" tilewidth="24" tileheight="28">
+  <image source="minix.png"/>
+  <tile id="84">
+   <properties>
+    <property name="walkable" value="0"/>
+    <property name="water" value="1"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="Layer 0" width="102" height="66">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAC+2cTW8TMRCGDfQG9EbDrUskDkDgAgQuQG5QKEh8NUh85f//CsbqDnFXm/hjx/Zrx4fRGyXNetbPvOvdqZUTpdSM4qRg/UbxneICIJ+O4t6I5s6rcfHjUjM3Fy6pzr9xaX5B15K4+HIrWU0uuc/blwvC/DUu6fN6SPFIUEO4fKI4b1z+6xOKZxTPBfVxABf2TM7rhW3clHm9pHhN8UZQH6itd0rigqTzCMd9qq56p3Hx17u9Svr2ldp6544QF9e1Lfd8puAioaceXPTa/0Ft13/+O5818D7IvKJz8fGL6RszH52j69pmG68Unfevc/nlD8XfPtY7uMwFxytFed2PxeWFcl8b3lK8ozgbvL/wGK8Wv8S+jpn3Zjb9TPGF4uvg/aXHeOY9eojm5jH0S6zjm/dmNv1J8Yvi9+D9lcd4PnUwprb7+tR+yZ2HVrNXlqIOxvQYYB5K5dKpeNddlPlAyQOFS+zreml5oHBBqVOUPFC4oNQpSh4mF+7HxIhS6hQlD5NLzLiw5IFSp0hczJ5MSKz7uf+x5zMbF5T5QMnDRTu1f10x16drFNcpblAcKfd9Nyh+QclDmstNilsUt9Xls6Irlyl1asuv+eWyr8x/P/fgMqVOJbnU6hezf7nw4ILilxAuPL5kHhJqzr3Zv1x6cEHxS0nXMR8uZv9y5cEFxS81chl7Lv3oyAXluo6ShySXKc+VKHWKkoeEujyXbizHQalTlDxQFKVOUfJAUZQ6bVww5wMlDxRF8YtUHmafkOMI4Pxy1Ols4vcl/aL7hO/V9nlB7zE+BpjnQ/eL3uc43JuvmSP1aVLWKQqX054L/09q0x+7NC61+UX3b/X+Yt5bzH3c0rig+EUqD92/1fuLeW8x93FL4yJRp7OJ35f0i+7f6v3FvLeY+7g5uXQB49fmF616fQnZY3QOxK229UXrsG+4Vu57h3L4Zezz2H7h1zl967rvaJOJS+w6RfGL6zwNNdf5j41f4/pSA5fYdcqvEbjs4pGLy77xa/KLbZ5zzX+IHtL6UhKXmvxSk5p12ql89cT7EqV/g6xUXYBw4X2J0r9BVqouR7jk4MP7EqV/g6xUXSWefwntFMZ9burzzZ1HLC6lciwl31Auh+o3dC67vte4NL/UrOhcpI+HqsPzbFwwtHEJ038iI+EdMGkAAA==
+  </data>
+ </layer>
+</map>
