@@ -1,6 +1,5 @@
 import pygameMenu
 import copy
-
 import tiledtmxloader
 import pygame
 from pygame import *
@@ -15,14 +14,14 @@ import cursor
 import os
 import math
 
+sys.setrecursionlimit(100000000)
+
 world_map = tiledtmxloader.tmxreader.TileMapParser().parse_decode('map.tmx') 
 resources = tiledtmxloader.helperspygame.ResourceLoaderPygame()
 resources.load(world_map)
 sprite_layers = tiledtmxloader.helperspygame.get_layers_from_map(resources)
 
-
 tmx = [sprites.background, sprites.walls, sprites.doors]
-
 W = sprite_layers[0].num_tiles_x
 H = sprite_layers[1].num_tiles_y
 lvl = [[' ' for i in range(4 * W)] for _ in range(4 * H)]
@@ -43,23 +42,18 @@ for i in range(len(tmx)):
                 tmp.move(row * 32, col * 32)
 
 layer = sprite_layers[3] 
-for person in layer.objects:
-    if person.properties["img"] == "person.png":
-        person = sprites.CharacterSprite(pygame.image.load("person.png"), person.x, person.y, True, sprites.character)
+for person_ in layer.objects:
+    if person_.properties["img"] == "person.png":
+        person = sprites.CharacterSprite(pygame.image.load("person.png"), person_.x, person_.y, True, sprites.character)
     else:
-        person = sprites.CharacterSprite(pygame.image.load(person.properties["img"]), person.x, person.y, False, sprites.character)
+        sprites.CharacterSprite(pygame.image.load(person_.properties["img"]), person_.x, person_.y, False, sprites.character)
 
 
 a = 135
-
 size = ((W + 1) * 32, (H + 1) * 32)
-
 pygame.init()
 screen = pygame.display.set_mode(size)#, pygame.FULLSCREEN)
-
-
 clock = pygame.time.Clock()
-
 
 # https://github.com/TheAlgorithms/Python/blob/master/graphs/bfs_shortest_path.py
 
@@ -193,7 +187,6 @@ engine = Engine()
 thread = KeyBoard(engine)
 thread.start()
 
-
 pygame.mouse.set_cursor((24, 24), (7, 0), cursor.curs, cursor.mask)
 
 def scalar(x1, y1, x2, y2):
@@ -201,7 +194,6 @@ def scalar(x1, y1, x2, y2):
  
 def module(x, y):
     return math.sqrt(x ** 2 + y ** 2)
-
 
   
 graph = {}
@@ -215,22 +207,36 @@ for i in range(len(lvl)):
                 graph[i * len(lvl[0]) + j].append((i - 1) * len(lvl[0]) + j)
             if 0 <= i - 1 and j + 1 < len(lvl[i]) and lvl[i - 1][j + 1] != '-':
                 graph[i * len(lvl[0]) + j].append((i - 1) * len(lvl[0]) + j + 1)
-            
             if  0 <= j - 1  and lvl[i][j - 1] != '-':
                 graph[i * len(lvl[0]) + j].append(i * len(lvl[0]) + j - 1)
             if  j + 1 < len(lvl[i]) and lvl[i][j + 1] != '-':
                 graph[i * len(lvl[0]) + j].append(i * len(lvl[0]) + j + 1)
-            
             if i + 1 < len(lvl) and 0 <= j - 1 and lvl[i + 1][j - 1] != '-':
                 graph[i * len(lvl[0]) + j].append((i + 1) * len(lvl[0]) + j - 1)
-            
             if i + 1 < len(lvl) and lvl[i + 1][j] != '-':
-                graph[i * len(lvl[0]) + j].append((i + 1) * len(lvl[0]) + j)
-            
+                graph[i * len(lvl[0]) + j].append((i + 1) * len(lvl[0]) + j)        
             if i + 1 < len(lvl) and j + 1 < len(lvl[i]) and lvl[i + 1][j + 1] != '-':
                 graph[i * len(lvl[0]) + j].append((i + 1) * len(lvl[0]) + j + 1)
 
 
+n = H * W * 16 - 1
+used = [False for _ in range(n + 1)]
+colors = [-1 for _ in range(n + 1)]
+color = 0
+
+def dfs(v, color):
+    global used, colors
+    colors[v] = color
+    used[v] = True
+    for u in graph[v]:
+        if not used[u]:
+            dfs(u, color)
+
+color = 0
+for i in range(n):
+    if colors[i] == -1 and i in graph:
+        dfs(i, color)
+        color += 1
 
 fps_block = -1
 angle_attack = 0
@@ -257,21 +263,44 @@ def atack(x, y):
     person.cur_frame = 0
     return angle
 
-old_graph = copy.deepcopy(graph)
+class Camera:
+    # зададим начальный сдвиг камеры
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+        
+    # сдвинуть объект obj на смещение камеры
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+    
+    # позиционировать камеру на объекте target
+    def update(self, target):
+        self.dx = -(target.rect.x + target.rect.w // 2 - 1000// 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - 1000 // 2)
+
+c = Camera()
+
+play_game = False
 
 while True:
     screen.unlock()
     clock.tick(60)
     pygame.display.set_caption("fps: " + str(clock.get_fps()))
     screen.fill(pygame.Color(109, 170, 44))
+    
+    if not play_game:
+        pygame.display.flip()
+        continue
     # draw sprites
+
     sprites.background.draw(screen)
     sprites.character_death.draw(screen)
     sprites.aroows.draw(screen)
     sprites.walls.draw(screen)
     sprites.character.draw(screen)
     sprites.doors.draw(screen)
-
+    
     if fps_block == 12 * 3:
         fps_block = -1
     if fps_block != -1:
@@ -290,9 +319,7 @@ while True:
         if event.type == pygame.MOUSEMOTION:
             x, y = event.pos
             
-    if keys[K_ESCAPE]:
-        os._exit(0)
-    if  fps_block == -1 and sum([keys[K_w], keys[K_a], keys[K_s], keys[K_d]]):
+    if fps_block == -1 and sum([keys[K_w], keys[K_a], keys[K_s], keys[K_d]]):
         for i in range(5):
             thread.engine.key(keys[K_w], keys[K_a], keys[K_s], keys[K_d])
 
@@ -329,14 +356,15 @@ while True:
             cur.death()
 
     start = ((person.rect.y) // 16 + 1) * len(lvl[0]) + (person.rect.x + 1) // 16 + 1
-
     lvl[start // len(lvl[0])][start % len(lvl[0])] = 'k'
 
 
     for cur in sprites.character:
         if not cur.main_person:
             if cur.fps_draw % 5 == 0:
-                to = ((cur.rect.y) // 16 + 1) * len(lvl[0]) + (cur.rect.x + 1) // 16 + 1                
+                to = ((cur.rect.y) // 16 + 1) * len(lvl[0]) + (cur.rect.x + 1) // 16 + 1
+                if colors[start] != colors[to]:
+                    continue
                 res = bfs_shortest_path(graph, to, start)
                 if res != -1:
                     x = res[1] % len(lvl[0]) * 16
@@ -351,9 +379,7 @@ while True:
                         cur.d()
                     else:
                         cur.a()
-
                     cur.rect = pygame.Rect(x - 16, y - 16, 16, 16)    
-                
             cur.fps_draw += 1
     
 
@@ -372,15 +398,4 @@ while True:
             if cur.mask.overlap_area(person.mask, offset) > 0:
                 cur.kill()
                 person.xp -= 30
-    """
-    for i in range(len(lvl)):
-        for j in range(len(lvl[0])):
-            if lvl[i][j] == '-':
-                pygame.draw.rect(screen, pygame.Color('red'), (j * 16, i * 16, 16, 16), 1)
-            elif lvl[i][j] == ' ':
-                pygame.draw.rect(screen, pygame.Color('green'), (j * 16, i * 16, 16, 16), 1)
-            else:
-                pygame.draw.rect(screen, pygame.Color('blue'), (j * 16, i * 16, 16, 16), 1)
-    """
     pygame.display.flip()
-

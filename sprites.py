@@ -17,10 +17,11 @@ class CharacterSprite(pygame.sprite.Sprite):
         self.cur_frame = 0
         self.image = self.frames[0][0]
         self.rect = self.rect.move(x, y)
+        self.r = self.rect.copy()
+
         self.mask = pygame.mask.from_surface(self.image)
         self.xp = 100
         self.fps_draw = 0
-        
         self.cnt_death = 0
 
     def draw(self, screen):
