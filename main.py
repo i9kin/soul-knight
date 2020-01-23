@@ -209,14 +209,27 @@ for i in range(len(lvl)):
     for j in range(len(lvl[i])):    
         if lvl[i][j] != '-':
             graph[i * len(lvl[0]) + j] = []
+            if 0 <= i - 1 and 0 <= j - 1 and lvl[i - 1][j - 1] != '-':
+                graph[i * len(lvl[0]) + j].append((i - 1) * len(lvl[0]) + j - 1)
             if 0 <= i - 1 and lvl[i - 1][j] != '-':
                 graph[i * len(lvl[0]) + j].append((i - 1) * len(lvl[0]) + j)
+            if 0 <= i - 1 and j + 1 < len(lvl[i]) and lvl[i - 1][j + 1] != '-':
+                graph[i * len(lvl[0]) + j].append((i - 1) * len(lvl[0]) + j + 1)
+            
             if  0 <= j - 1  and lvl[i][j - 1] != '-':
                 graph[i * len(lvl[0]) + j].append(i * len(lvl[0]) + j - 1)
             if  j + 1 < len(lvl[i]) and lvl[i][j + 1] != '-':
                 graph[i * len(lvl[0]) + j].append(i * len(lvl[0]) + j + 1)
+            
+            if i + 1 < len(lvl) and 0 <= j - 1 and lvl[i + 1][j - 1] != '-':
+                graph[i * len(lvl[0]) + j].append((i + 1) * len(lvl[0]) + j - 1)
+            
             if i + 1 < len(lvl) and lvl[i + 1][j] != '-':
                 graph[i * len(lvl[0]) + j].append((i + 1) * len(lvl[0]) + j)
+            
+            if i + 1 < len(lvl) and j + 1 < len(lvl[i]) and lvl[i + 1][j + 1] != '-':
+                graph[i * len(lvl[0]) + j].append((i + 1) * len(lvl[0]) + j + 1)
+
 
 
 fps_block = -1
@@ -247,8 +260,6 @@ def atack(x, y):
 old_graph = copy.deepcopy(graph)
 
 while True:
-    graph = copy.deepcopy(old_graph)
-
     screen.unlock()
     clock.tick(60)
     pygame.display.set_caption("fps: " + str(clock.get_fps()))
@@ -325,25 +336,6 @@ while True:
     for cur in sprites.character:
         if not cur.main_person:
             if cur.fps_draw % 5 == 0:
-                to = ((cur.rect.y) // 16 + 1) * len(lvl[0]) + (cur.rect.x + 1) // 16 + 1           
-                #for i in range(5):
-                #    for j in range(3):
-                #        vertex = to + (i - 1) * len(lvl[0]) + j
-                #        lvl[vertex // len(lvl[0])][vertex % len(lvl[0])] = 'k'          
-                
-                cur = to
-                for i in range(3):
-                    for j in range(3):
-                        vertex = to + i * len(lvl[0]) + j
-                        lvl[vertex // len(lvl[0])][vertex % len(lvl[0])] = 'k' 
-                        if vertex in graph and cur in graph[vertex]:
-                            graph[vertex].remove(cur)
-
-                
-
-    for cur in sprites.character:
-        if not cur.main_person:
-            if cur.fps_draw % 5 == 0:
                 to = ((cur.rect.y) // 16 + 1) * len(lvl[0]) + (cur.rect.x + 1) // 16 + 1                
                 res = bfs_shortest_path(graph, to, start)
                 if res != -1:
@@ -380,7 +372,7 @@ while True:
             if cur.mask.overlap_area(person.mask, offset) > 0:
                 cur.kill()
                 person.xp -= 30
-    
+    """
     for i in range(len(lvl)):
         for j in range(len(lvl[0])):
             if lvl[i][j] == '-':
@@ -389,5 +381,6 @@ while True:
                 pygame.draw.rect(screen, pygame.Color('green'), (j * 16, i * 16, 16, 16), 1)
             else:
                 pygame.draw.rect(screen, pygame.Color('blue'), (j * 16, i * 16, 16, 16), 1)
+    """
     pygame.display.flip()
 
