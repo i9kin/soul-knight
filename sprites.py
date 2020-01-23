@@ -7,6 +7,8 @@ walls = pygame.sprite.Group()
 background = pygame.sprite.Group()
 doors = pygame.sprite.Group()
 
+T = pygame.sprite.Group()
+
 class CharacterSprite(pygame.sprite.Sprite):
     def __init__(self, sheet, x, y, main_person, group):
         self.main_person = main_person
@@ -136,3 +138,28 @@ class Sprite(pygame.sprite.Sprite):
 
     def move(self, x, y):
         self.rect = self.rect.move(x, y)
+
+class Door(pygame.sprite.Sprite):
+
+    def __init__(self, doors_):
+        super().__init__(doors)
+        self.frames = [pygame.image.load(door) for door in doors_]
+        self.rect = self.frames[0].get_rect()
+        self.cur_frame = 0
+        self.image = self.frames[0]
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+        self.image = self.frames[self.cur_frame]
+
+    def move(self, x, y):
+        self.rect = self.rect.move(x, y)
+
+    def draw(self, screen, dx=0, dy=0):
+        if dx != 0 or dy != 0:
+            rect = self.rect
+            rect = rect.move(dx, dy)
+            screen.blit(self.image, rect)
+        else:
+            screen.blit(self.image, self.rect)

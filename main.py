@@ -21,7 +21,7 @@ resources = tiledtmxloader.helperspygame.ResourceLoaderPygame()
 resources.load(world_map)
 sprite_layers = tiledtmxloader.helperspygame.get_layers_from_map(resources)
 
-tmx = [sprites.background, sprites.walls, sprites.doors]
+tmx = [sprites.background, sprites.walls]
 W = sprite_layers[0].num_tiles_x
 H = sprite_layers[1].num_tiles_y
 lvl = [[' ' for i in range(4 * W)] for _ in range(4 * H)]
@@ -31,7 +31,7 @@ for i in range(len(tmx)):
     for row in range(0, layer.num_tiles_x): # перебираем все координаты тайлов
         for col in range(0, layer.num_tiles_y): # перебираем все координаты тайлов
             if layer.content2D[col][row] is not None:
-                if tmx[i] == sprites.walls or tmx[i] == sprites.doors: 
+                if tmx[i] == sprites.walls: 
                     for x in range(2):
                         if 2 * row - 1 >= 0:
                             lvl[2 * col + x][2 * row - 1] = '-'
@@ -40,6 +40,21 @@ for i in range(len(tmx)):
                            
                 tmp = sprites.Sprite(layer.content2D[col][row].image, tmx[i])
                 tmp.move(row * 32, col * 32)
+
+layer = sprite_layers[2] 
+
+
+for door in layer.objects:
+    d = sprites.Door(['maps/4.png', 'maps/5.png', 'maps/6.png', 'maps/7.png'])
+    d.move(door.x, door.y)
+    row = door.x // 32
+    col = door.y // 32
+    for x in range(2):
+        if 2 * row - 1 >= 0:
+            lvl[2 * col + x][2 * row - 1] = '-'
+            lvl[2 * col + x][2 * row] = '-'
+            lvl[2 * col + x][2 * row + 1] = '-'
+
 
 layer = sprite_layers[3] 
 for person_ in layer.objects:
@@ -276,7 +291,12 @@ class Camera():
             for sprite in sprite_group:
                 sprite.draw(screen, self.dx, self.dy)
 
+
+
 camera = Camera([sprites.background, sprites.character_death, sprites.aroows, sprites.character, sprites.walls, sprites.doors], 200, 200)
+
+
+Q = 0
 while True:
     screen.unlock()
     clock.tick(60)
@@ -286,7 +306,11 @@ while True:
     if not play_game:
         pygame.display.flip()
         continue
+    if Q % 30 == 0:
+        for door in sprites.doors:
+            door.update()
 
+    Q += 1
     camera.render(screen)
 
     if fps_block == 12 * 3:
