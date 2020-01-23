@@ -24,11 +24,13 @@ class CharacterSprite(pygame.sprite.Sprite):
         self.fps_draw = 0
         self.cnt_death = 0
 
-    def draw(self, screen):
-        try:
+    def draw(self, screen, dx=0, dy=0):
+        if dx != 0 or dy != 0:
+            rect = self.rect
+            rect = rect.move(dx, dy)
+            screen.blit(self.image, rect)
+        else:
             screen.blit(self.image, self.rect)
-        except:
-            pass
 
     def cut_sheet(self, sheet):
         pos = [7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 4, 4, 4, 4, 13, 13, 13, 13, 6]
@@ -86,11 +88,13 @@ class AroowSprite(pygame.sprite.Sprite):
         self.center = (100, 100)
         self.main_image = self.image
         
-    def draw(self, screen):
-        try:
+    def draw(self, screen, dx=0, dy=0):
+        if dx != 0 or dy != 0:
+            rect = self.rect
+            rect = rect.move(dx, dy)
+            screen.blit(self.image, rect)
+        else:
             screen.blit(self.image, self.rect)
-        except:
-            pass
 
     def blitRotate(self, originPos, angle):
         # https://stackoverflow.com/a/54714144
@@ -121,11 +125,14 @@ class Sprite(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
         
-    def draw(self, screen):
-        try:
+    def draw(self, screen, dx=0, dy=0):
+        if dx != 0 or dy != 0:
+            rect = self.rect
+            rect = rect.move(dx, dy)
+            screen.blit(self.image, rect)
+        else:
             screen.blit(self.image, self.rect)
-        except:
-            pass
+        
 
     def move(self, x, y):
         self.rect = self.rect.move(x, y)

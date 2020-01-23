@@ -263,26 +263,20 @@ def atack(x, y):
     person.cur_frame = 0
     return angle
 
-class Camera:
-    # зададим начальный сдвиг камеры
-    def __init__(self):
-        self.dx = 0
-        self.dy = 0
-        
-    # сдвинуть объект obj на смещение камеры
-    def apply(self, obj):
-        obj.rect.x += self.dx
-        obj.rect.y += self.dy
-    
-    # позиционировать камеру на объекте target
-    def update(self, target):
-        self.dx = -(target.rect.x + target.rect.w // 2 - 1000// 2)
-        self.dy = -(target.rect.y + target.rect.h // 2 - 1000 // 2)
+play_game = True
 
-c = Camera()
+class Camera():
 
-play_game = False
+    def __init__(self, sprites, dx, dy):
+        self.dx, self.dy = dx, dy
+        self.sprites = sprites
 
+    def render(self, screen):
+        for sprite_group in self.sprites:
+            for sprite in sprite_group:
+                sprite.draw(screen, self.dx, self.dy)
+
+camera = Camera([sprites.background, sprites.character_death, sprites.aroows, sprites.character, sprites.walls, sprites.doors], 200, 200)
 while True:
     screen.unlock()
     clock.tick(60)
@@ -292,15 +286,9 @@ while True:
     if not play_game:
         pygame.display.flip()
         continue
-    # draw sprites
 
-    sprites.background.draw(screen)
-    sprites.character_death.draw(screen)
-    sprites.aroows.draw(screen)
-    sprites.walls.draw(screen)
-    sprites.character.draw(screen)
-    sprites.doors.draw(screen)
-    
+    camera.render(screen)
+
     if fps_block == 12 * 3:
         fps_block = -1
     if fps_block != -1:
@@ -318,6 +306,9 @@ while True:
                 fps_block = 0
         if event.type == pygame.MOUSEMOTION:
             x, y = event.pos
+            x -= camera.dx
+            y -= camera.dy
+
             
     if fps_block == -1 and sum([keys[K_w], keys[K_a], keys[K_s], keys[K_d]]):
         for i in range(5):
@@ -389,8 +380,8 @@ while True:
             character_death.move(cur.rect.x, cur.rect.y)
             cur.kill()
         else:
-            pygame.draw.rect(screen, pygame.Color('red'), (cur.rect.x + 3, cur.rect.y, 58, 10), 1)
-            pygame.draw.rect(screen, pygame.Color('red'), (cur.rect.x + 3 , cur.rect.y, 58 * (cur.xp / 100), 10))
+            pygame.draw.rect(screen, pygame.Color('red'), (cur.rect.x + 3 + camera.dx, cur.rect.y + camera.dy, 58, 10), 1)
+            pygame.draw.rect(screen, pygame.Color('red'), (cur.rect.x + 3 + camera.dx, cur.rect.y + camera.dy, 58 * (cur.xp / 100), 10))
 
     for cur in sprites.character:
         if not cur.main_person:
