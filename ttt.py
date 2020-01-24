@@ -1,11 +1,7 @@
 from PIL import Image
 
-im = Image.open('maps/4.png')
 
-w, h = im.size
-
-pix = im.load()
-
-for i in range(w):
-	pix[i] = pix[i][-1]
-im.show()
+for i in range(4, 8):
+	im = Image.open(f'maps/{i}.png')
+	im = im.transpose(Image.FLIP_LEFT_RIGHT)
+	im.save(f'maps/d{i}.png')

@@ -42,11 +42,10 @@ for i in range(len(tmx)):
                 tmp.move(row * 32, col * 32)
 
 layer = sprite_layers[2] 
-
-
 for door in layer.objects:
     d = sprites.Door(['maps/4.png', 'maps/5.png', 'maps/6.png', 'maps/7.png'])
     d.move(door.x, door.y)
+    d.open = int(door.properties["open"])
     row = door.x // 32
     col = door.y // 32
     for x in range(2):
@@ -293,7 +292,7 @@ class Camera():
 
 
 
-camera = Camera([sprites.background, sprites.character_death, sprites.aroows, sprites.character, sprites.walls, sprites.doors], 200, 200)
+camera = Camera([sprites.background, sprites.character_death, sprites.aroows, sprites.walls, sprites.doors, sprites.character], 200, 200)
 
 
 Q = 0
@@ -303,16 +302,45 @@ while True:
     pygame.display.set_caption("fps: " + str(clock.get_fps()))
     screen.fill(pygame.Color(109, 170, 44))
     
+
     if not play_game:
         pygame.display.flip()
         continue
-    if Q % 30 == 0:
+    if Q % 1 == 0:
+
+        
+        f = person.rect
         for door in sprites.doors:
-            door.update()
-    camera.dx = -person.rect.x + 500
-    camera.dy = - person.rect.y + 300
-    Q += 1
+            x1 = f.x + 16
+            y1 = f.y + 16
+            x2 = x1 + 32
+            y2 = y1 + 48
+            s = door.rect
+            x3 = s.x
+            y3 = s.y
+            x4 = x3 + 32
+            y4 = y3 + 32
+            fr = pygame.Rect(x1 + camera.dx, y1 + camera.dy, 32, 48)
+            sr = pygame.Rect(x3 + camera.dx, y3 + camera.dy, 32, 32)
+            if fr.colliderect(sr):
+                dy = 48 + (y1 - y3)
+                dx = 32 + (x1 - x3)
+                if (door.open == 0 or door.open == 2) and ((48 + (y3 - y1)) // 20 != 0):
+                    if door.open == 0:
+                        door.image = door.frames[(48 + (y3 - y1)) // 20 - 1]
+                    elif door.open == 2:
+                        door.image = door.frames[4 - ((48 + (y3 - y1)) // 20)]
+                elif dx // 20 != 3:
+                    if door.open == 1:
+                       door.image = door.frames[dx // 20 + 1]
+                    elif door.open == 3:
+                        door.image = door.frames[3 - dx // 20]                   
+            else:
+                door.image = door.frames[0]
     camera.render(screen)
+    camera.dx = -person.rect.x + 500 - 32
+    camera.dy = - person.rect.y + 250 - 32
+    Q += 1
 
     if fps_block == 12 * 3:
         fps_block = -1

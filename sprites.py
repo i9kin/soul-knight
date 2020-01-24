@@ -143,6 +143,7 @@ class Door(pygame.sprite.Sprite):
 
     def __init__(self, doors_):
         super().__init__(doors)
+        self.open = 0
         self.frames = [pygame.image.load(door) for door in doors_]
         self.rect = self.frames[0].get_rect()
         self.cur_frame = 0
