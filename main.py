@@ -46,7 +46,7 @@ for door in layer.objects:
     d = sprites.Door(['maps/4.png', 'maps/5.png', 'maps/6.png', 'maps/7.png'])
     d.move(door.x, door.y)
     d.open = int(door.properties["open"])
-    row = door.x // 32
+    row = door.x // 32 + 1
     col = door.y // 32
     for x in range(2):
         if 2 * row - 1 >= 0:
@@ -407,6 +407,7 @@ while True:
         if not cur.main_person:
             if cur.fps_draw % 5 == 0:
                 to = ((cur.rect.y) // 16 + 1) * len(lvl[0]) + (cur.rect.x + 1) // 16 + 1
+
                 if colors[start] != colors[to]:
                     continue
                 res = bfs_shortest_path(graph, to, start)
@@ -442,4 +443,18 @@ while True:
             if cur.mask.overlap_area(person.mask, offset) > 0:
                 cur.kill()
                 person.xp -= 30
+
+
+
+    
+    for i in range(len(lvl)):
+        for j in range(len(lvl[0])):
+            if lvl[i][j] == '-':
+                pygame.draw.rect(screen, pygame.Color('red'), (j * 16 + camera.dx, i * 16 + camera.dy, 16, 16), 1)
+            elif lvl[i][j] == ' ':
+                pygame.draw.rect(screen, pygame.Color('green'), (j * 16 + camera.dx, i * 16 + camera.dy, 16, 16), 1)
+            else:
+                pygame.draw.rect(screen, pygame.Color('blue'), (j * 16 + camera.dx, i * 16 + camera.dy, 16, 16), 1)
+   
+
     pygame.display.flip()
