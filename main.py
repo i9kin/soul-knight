@@ -309,7 +309,8 @@ while True:
     if Q % 30 == 0:
         for door in sprites.doors:
             door.update()
-
+    camera.dx = -person.rect.x + 500
+    camera.dy = - person.rect.y + 300
     Q += 1
     camera.render(screen)
 
