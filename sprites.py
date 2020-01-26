@@ -7,17 +7,19 @@ walls = pygame.sprite.Group()
 background = pygame.sprite.Group()
 doors = pygame.sprite.Group()
 
-T = pygame.sprite.Group()
 
 class CharacterSprite(pygame.sprite.Sprite):
     def __init__(self, sheet, x, y, main_person, group):
         self.main_person = main_person
+        
+        self.anim = 0
         super().__init__(group)
         self.main_sheet = sheet
         self.frames = []
         self.cut_sheet(sheet)
         self.cur_frame = 0
         self.image = self.frames[0][0]
+        self.drawing = True
         self.rect = self.rect.move(x, y)
         self.r = self.rect.copy()
 
@@ -25,6 +27,7 @@ class CharacterSprite(pygame.sprite.Sprite):
         self.xp = 100
         self.fps_draw = 0
         self.cnt_death = 0
+
 
     def draw(self, screen, dx=0, dy=0):
         if dx != 0 or dy != 0:
@@ -46,6 +49,7 @@ class CharacterSprite(pygame.sprite.Sprite):
                 self.frames[j].append(e)
 
     def update(self, i):
+        self.anim = i
         self.cur_frame = (self.cur_frame + 1) % len(self.frames[i])
         self.image = self.frames[i][self.cur_frame]
 
