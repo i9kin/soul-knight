@@ -1,3 +1,5 @@
+# https://github.com/TheAlgorithms/Python/blob/master/graphs/bfs_shortest_path.py
+
 def bfs_shortest_path(graph: dict, start, goal) -> str:
     explored = []
     queue = [[start]]

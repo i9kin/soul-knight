@@ -13,7 +13,7 @@ import os
 
 
 from tmx import TMX
-from engine import Engine
+from engine import Engine, Camera
 import graph
 
 sys.setrecursionlimit(100000000)
@@ -26,31 +26,6 @@ size = ((t.W + 1) * 32, (t.H + 1) * 32)
 pygame.init()
 screen = pygame.display.set_mode(size)  # , pygame.FULLSCREEN)
 clock = pygame.time.Clock()
-
-# https://github.com/TheAlgorithms/Python/blob/master/graphs/bfs_shortest_path.py
-
-
-def bfs_shortest_path(graph: dict, start, goal) -> str:
-    explored = []
-    queue = [[start]]
-    if start == goal:
-        return -1
-    while queue:
-        path = queue.pop(0)
-        node = path[-1]
-        if node not in explored:
-            neighbours = graph[node]
-            for neighbour in neighbours:
-                new_path = list(path)
-                new_path.append(neighbour)
-                queue.append(new_path)
-                if neighbour == goal:
-                    return new_path
-            explored.append(node)
-    return -1
-
-
-
 
 
 class KeyBoard(threading.Thread):
@@ -79,7 +54,7 @@ thread.start()
 pygame.mouse.set_cursor((24, 24), (7, 0), cursor.curs, cursor.mask)
 
 q = graph.G(lvl)
-graph = q.graph
+game_graph = q.graph
 colors = q.colors
 
 
@@ -87,20 +62,10 @@ fps_block = -1
 angle_attack = 0
 play_game = True
 
-class Camera():
-
-    def __init__(self, sprites, dx, dy):
-        self.dx, self.dy = dx, dy
-        self.sprites = sprites
-
-    def render(self, screen):
-        for sprite_group in self.sprites:
-            for sprite in sprite_group:
-                sprite.draw(screen, self.dx, self.dy)
-
 
 camera = Camera([sprites.background, sprites.character_death,
                  sprites.aroows, sprites.walls, sprites.doors], 200, 200)
+
 
 
 while True:
@@ -236,7 +201,7 @@ while True:
                     len(lvl[0]) + (cur.rect.x + 15) // 16 + 1
                 if colors[start] != colors[to]:
                     continue
-                res = bfs_shortest_path(graph, to, start)
+                res = graph.bfs_shortest_path(game_graph, to, start)
                 if res != -1:
                     x = res[1] % len(lvl[0]) * 16
                     y = res[1] // len(lvl[0]) * 16
@@ -271,16 +236,4 @@ while True:
             if cur.mask.overlap_area(person.mask, offset) > 0:
                 cur.kill()
                 person.xp -= 30
-
-    """
-    for i in range(len(lvl)):
-        for j in range(len(lvl[0])):
-            if lvl[i][j] == '-':
-                pygame.draw.rect(screen, pygame.Color('red'), (j * 16 + camera.dx, i * 16 + camera.dy, 16, 16), 1)
-            elif lvl[i][j] == ' ':
-                pygame.draw.rect(screen, pygame.Color('green'), (j * 16 + camera.dx, i * 16 + camera.dy, 16, 16), 1)
-            else:
-                pygame.draw.rect(screen, pygame.Color('blue'), (j * 16 + camera.dx, i * 16 + camera.dy, 16, 16), 1)
-    """
-
     pygame.display.flip()

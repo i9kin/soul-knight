@@ -124,3 +124,16 @@ class Engine():
         arrow.dy = -(l * y2) / (1 + l)
         self.person.cur_frame = 0
         return angle
+
+
+class Camera():
+
+    def __init__(self, sprites, dx, dy):
+        self.dx, self.dy = dx, dy
+        self.sprites = sprites
+
+    def render(self, screen):
+        for sprite_group in self.sprites:
+            for sprite in sprite_group:
+                sprite.draw(screen, self.dx, self.dy)
+
