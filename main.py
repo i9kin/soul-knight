@@ -258,8 +258,8 @@ while True:
         if colors[start] != colors[to]:
             ch.drawing = False
             continue
-
         ch.draw(screen, camera.dx, camera.dy)
+
     camera.dx = -person.rect.x + 500 - 32
     camera.dy = - person.rect.y + 250 - 32
 
