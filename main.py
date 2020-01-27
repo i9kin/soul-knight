@@ -10,29 +10,90 @@ import time
 import datetime
 import cursor
 import os
-
+import time
 
 from tmx import TMX
 from engine import Engine, Camera
 import graph
 
+
+def quit():
+    os._exit(0)
+
+
+def main_background():
+    pass
+
+
+TIME = datetime.datetime.now() - datetime.datetime.now()
+LAST_TIME = datetime.datetime.now()
+
+cur_map = (1, 1)
+size = (1000, 500)
+pygame.init()
+screen = pygame.display.set_mode(size)  # pygame.FULLSCREEN)
+pygame.mouse.set_cursor((24, 24), (7, 0), cursor.curs, cursor.mask)
+os.environ['SDL_VIDEO_CENTERED'] = '1'
+clock = pygame.time.Clock()
 sys.setrecursionlimit(100000000)
 
-t = TMX()
-lvl = t.lvl
-person = t.person
+ABOUT = ['Author: 9kin']
+COLOR_BLACK = (0, 0, 0)
+COLOR_WHITE = (255, 255, 255)
+FPS = 60.0
+MENU_BACKGROUND_COLOR = (228, 100, 36)
+test = False
 
-size = ((t.W + 1) * 32, (t.H + 1) * 32)
-pygame.init()
-screen = pygame.display.set_mode(size)  # , pygame.FULLSCREEN)
-clock = pygame.time.Clock()
+MAIN_MENU = None
+
+
+def update_level(value, enabled):
+    global TIME, tmx, lvl, person, gr, game_graph, colors, fps_block, angle_attack, engine, cur_map, MAIN_MENU
+    TIME = datetime.datetime.now() - datetime.datetime.now()
+    cur_map = (value[0], 0)
+    for sprite_group in camera.sprites:
+        for sprite in sprite_group:
+            sprite.kill()
+    for sprite in sprites.character:
+        sprite.kill()
+    tmx = TMX(f'maps/map{value[0]}.tmx')
+    lvl = tmx.lvl
+    person = tmx.person
+    engine = Engine(person)
+    gr = graph.G(lvl)
+    game_graph = gr.graph
+    colors = gr.colors
+    fps_block = -1
+    angle_attack = 0
+    update_time()
+    MAIN_MENU.disable()
+    MAIN_MENU = main_menu
+
+
+def update_time():
+    global LAST_TIME
+    LAST_TIME = datetime.datetime.now()
+
+
+def play_game():
+    update_time()
+    MAIN_MENU.disable()
+
+
+def reset_game():
+    update_time()
+    update_level(cur_map, pygameMenu.events.CLOSE)
+
+
+def back():
+    update_time()
+    MAIN_MENU.disable()
 
 
 class KeyBoard(threading.Thread):
 
-    def __init__(self, engine):
+    def __init__(self):
         super().__init__()
-        self.engine = engine
 
     def run(self):
         self.alive = True
@@ -46,36 +107,118 @@ class KeyBoard(threading.Thread):
         self.join()
 
 
-engine = Engine(person)
-
-thread = KeyBoard(engine)
+thread = KeyBoard()
 thread.start()
-
-pygame.mouse.set_cursor((24, 24), (7, 0), cursor.curs, cursor.mask)
-
-q = graph.G(lvl)
-game_graph = q.graph
-colors = q.colors
-
-
-fps_block = -1
-angle_attack = 0
-play_game = True
-
-
 camera = Camera([sprites.background, sprites.character_death,
                  sprites.aroows, sprites.walls, sprites.doors], 200, 200)
 
 
+def generate_menu(title, lines):
+    about_menu = pygameMenu.TextMenu(screen,
+                                     bgfun=main_background,
+                                     color_selected=COLOR_WHITE,
+                                     font=pygameMenu.font.FONT_BEBAS,
+                                     font_color=COLOR_BLACK,
+                                     font_size=30,
+                                     font_size_title=40,
+                                     menu_alpha=100,
+                                     menu_color=MENU_BACKGROUND_COLOR,
+                                     menu_height=int(size[1] * 0.7),
+                                     menu_width=int(size[0] * 0.8),
+                                     option_shadow=False,
+                                     onclose=pygameMenu.events.CLOSE,
+                                     title=title,
+                                     window_height=size[1],
+                                     window_width=size[0],
+                                     enabled=False
+                                     )
+    for line in lines:
+        if type(line) is str:
+            about_menu.add_line(line)
+        elif type(line) is list:
+            about_menu.add_selector(line[0], line[1:-1], onchange=line[-1])
+        else:
+            about_menu.add_option(line[0], line[1])
+
+    return about_menu
+
+
+about_menu = generate_menu('about',
+                           ['Author: 9kin',
+                            ('Return to menu', pygameMenu.events.BACK)
+                            ]
+                           )
+
+main_menu = generate_menu('main', [
+    ('play', play_game),
+    ('reset level', reset_game),
+    ['level', ('1', 1), ('2', 2), update_level],
+    ('about', about_menu),
+    ('back', back),
+    ('quit', quit)
+]
+)
+
+win_menu = generate_menu('you win', [
+    ('reset level', reset_game),
+    ['level', ('1', 1), ('2', 2), update_level],
+    ('quit', quit)
+]
+)
+
+lose_menu = generate_menu('you lose', [
+    ('reset level', reset_game),
+    ['level', ('1', 1), ('2', 2), update_level],
+    ('quit', quit)
+]
+)
+
+MAIN_MENU = main_menu
+
+reset_game()
+first = 0
 
 while True:
-    screen.unlock()
     clock.tick(60)
-    pygame.display.set_caption("fps: " + str(clock.get_fps()))
+    events = pygame.event.get()
+    for event in events:
+        if event.type == pygame.QUIT:
+            os._exit(0)
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                MAIN_MENU.enable()
+    if first == 2:
+        MAIN_MENU.enable()
+        TIME = datetime.datetime.now() - datetime.datetime.now()
+        LAST_TIME = datetime.datetime.now()
+    first += 1
+
+    MAIN_MENU.mainloop(events, disable_loop=test)
+    if test:
+        break
+    TIME += datetime.datetime.now() - LAST_TIME
+    LAST_TIME = datetime.datetime.now()
+    pygame.display.set_caption(str(TIME))
+
+    if len(sprites.character) == 1:
+        MAIN_MENU = generate_menu('you win', [f'total time:{TIME}',
+                                              ('reset level', reset_game),
+                                              ['level', ('1', 1),
+                                               ('2', 2), update_level],
+                                              ('quit', quit)
+                                              ])
+        MAIN_MENU.enable()
+    elif person.xp <= 0:
+        MAIN_MENU = generate_menu('you lose', [f'total time:{TIME}',
+                                               ('reset level', reset_game),
+                                               ['level', ('1', 1),
+                                                ('2', 2), update_level],
+                                               ('quit', quit)
+                                               ])
+
+        MAIN_MENU.enable()
+
     screen.fill(pygame.Color(109, 170, 44))
-    if not play_game:
-        pygame.display.flip()
-        continue
 
     f = person.rect
     for door in sprites.doors:
@@ -126,10 +269,10 @@ while True:
     if fps_block != -1:
         fps_block += 1
         if fps_block % 3 == 0:
-            thread.engine.attack_anim(angle_attack)
+            engine.attack_anim(angle_attack)
 
     keys = thread.keys
-    for event in pygame.event.get():
+    for event in events:
         if event.type == pygame.QUIT:
             os._exit(0)
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -151,9 +294,9 @@ while True:
 
     if fps_block == -1 and sum([keys[K_w], keys[K_a], keys[K_s], keys[K_d]]):
         for i in range(5):
-            thread.engine.key(keys[K_w], keys[K_a], keys[K_s], keys[K_d])
+            engine.key(keys[K_w], keys[K_a], keys[K_s], keys[K_d])
     elif fps_block == -1 and person.anim != 10:
-            person.s()
+        person.s()
 
     for aroow in sprites.aroows:
         for obj in sprites.doors:

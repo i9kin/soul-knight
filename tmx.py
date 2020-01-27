@@ -34,7 +34,7 @@ class TMX:
 
         layer = self.sprite_layers[2]
         for door in layer.objects:
-            d = sprites.Door(['maps/4.png', 'maps/5.png', 'maps/6.png', 'maps/7.png'])
+            d = sprites.Door(['tmp/4.png', 'tmp/5.png', 'tmp/6.png', 'tmp/7.png'])
             d.move(door.x, door.y)
             d.open = int(door.properties["open"])
             row = door.x // 32

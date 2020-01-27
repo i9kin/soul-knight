@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" tiledversion="1.2.1" orientation="orthogonal" renderorder="right-down" width="30" height="15" tilewidth="32" tileheight="32" infinite="0" nextlayerid="19" nextobjectid="47">
  <tileset firstgid="1" source="16.tsx"/>
- <tileset firstgid="257" source="person.tsx"/>
  <layer id="12" name="background" width="30" height="15">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -73,72 +72,7 @@
     <property name="img" value="orc.png"/>
    </properties>
   </object>
-  <object id="8" x="505" y="53" width="32" height="32">
-   <properties>
-    <property name="img" value="orc.png"/>
-   </properties>
-  </object>
-  <object id="10" x="452" y="362" width="32" height="32">
-   <properties>
-    <property name="img" value="skeleton.png"/>
-   </properties>
-  </object>
-  <object id="11" x="623" y="54" width="32" height="32">
-   <properties>
-    <property name="img" value="orc.png"/>
-   </properties>
-  </object>
-  <object id="12" x="694" y="61" width="32" height="32">
-   <properties>
-    <property name="img" value="orc.png"/>
-   </properties>
-  </object>
-  <object id="13" x="572" y="51" width="32" height="32">
-   <properties>
-    <property name="img" value="orc.png"/>
-   </properties>
-  </object>
-  <object id="14" x="763" y="55" width="32" height="32">
-   <properties>
-    <property name="img" value="orc.png"/>
-   </properties>
-  </object>
-  <object id="15" x="834" y="55" width="32" height="32">
-   <properties>
-    <property name="img" value="orc.png"/>
-   </properties>
-  </object>
   <object id="16" x="88" y="65" width="32" height="32">
-   <properties>
-    <property name="img" value="orc.png"/>
-   </properties>
-  </object>
-  <object id="17" x="523" y="93" width="32" height="32">
-   <properties>
-    <property name="img" value="orc.png"/>
-   </properties>
-  </object>
-  <object id="18" x="566" y="100" width="32" height="32">
-   <properties>
-    <property name="img" value="orc.png"/>
-   </properties>
-  </object>
-  <object id="19" x="631" y="96" width="32" height="32">
-   <properties>
-    <property name="img" value="orc.png"/>
-   </properties>
-  </object>
-  <object id="20" x="694" y="104" width="32" height="32">
-   <properties>
-    <property name="img" value="orc.png"/>
-   </properties>
-  </object>
-  <object id="21" x="760" y="103" width="32" height="32">
-   <properties>
-    <property name="img" value="orc.png"/>
-   </properties>
-  </object>
-  <object id="22" x="838" y="104" width="32" height="32">
    <properties>
     <property name="img" value="orc.png"/>
    </properties>

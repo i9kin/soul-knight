@@ -1,5 +1,6 @@
 # https://github.com/TheAlgorithms/Python/blob/master/graphs/bfs_shortest_path.py
 
+
 def bfs_shortest_path(graph: dict, start, goal) -> str:
     explored = []
     queue = [[start]]
@@ -19,6 +20,7 @@ def bfs_shortest_path(graph: dict, start, goal) -> str:
             explored.append(node)
     return -1
 
+
 class G:
     def __init__(self, lvl):
         self.lvl = lvl
@@ -33,24 +35,28 @@ class G:
                     graph[i * len(self.lvl[0]) + j] = []
                     if 0 <= i - 1 and 0 <= j - 1 and self.lvl[i - 1][j - 1] != '-':
                         graph[i * len(self.lvl[0]) + j].append((i - 1)
-                                                          * len(self.lvl[0]) + j - 1)
+                                                               * len(self.lvl[0]) + j - 1)
                     if 0 <= i - 1 and self.lvl[i - 1][j] != '-':
-                        graph[i * len(self.lvl[0]) + j].append((i - 1) * len(self.lvl[0]) + j)
+                        graph[i * len(self.lvl[0]) +
+                              j].append((i - 1) * len(self.lvl[0]) + j)
                     if 0 <= i - 1 and j + 1 < len(self.lvl[i]) and self.lvl[i - 1][j + 1] != '-':
                         graph[i * len(self.lvl[0]) + j].append((i - 1)
-                                                          * len(self.lvl[0]) + j + 1)
+                                                               * len(self.lvl[0]) + j + 1)
                     if 0 <= j - 1 and self.lvl[i][j - 1] != '-':
-                        graph[i * len(self.lvl[0]) + j].append(i * len(self.lvl[0]) + j - 1)
+                        graph[i * len(self.lvl[0]) + j].append(i *
+                                                               len(self.lvl[0]) + j - 1)
                     if j + 1 < len(self.lvl[i]) and self.lvl[i][j + 1] != '-':
-                        graph[i * len(self.lvl[0]) + j].append(i * len(self.lvl[0]) + j + 1)
+                        graph[i * len(self.lvl[0]) + j].append(i *
+                                                               len(self.lvl[0]) + j + 1)
                     if i + 1 < len(self.lvl) and 0 <= j - 1 and self.lvl[i + 1][j - 1] != '-':
                         graph[i * len(self.lvl[0]) + j].append((i + 1)
-                                                          * len(self.lvl[0]) + j - 1)
+                                                               * len(self.lvl[0]) + j - 1)
                     if i + 1 < len(self.lvl) and self.lvl[i + 1][j] != '-':
-                        graph[i * len(self.lvl[0]) + j].append((i + 1) * len(self.lvl[0]) + j)
+                        graph[i * len(self.lvl[0]) +
+                              j].append((i + 1) * len(self.lvl[0]) + j)
                     if i + 1 < len(self.lvl) and j + 1 < len(self.lvl[i]) and self.lvl[i + 1][j + 1] != '-':
                         graph[i * len(self.lvl[0]) + j].append((i + 1)
-                                                          * len(self.lvl[0]) + j + 1)
+                                                               * len(self.lvl[0]) + j + 1)
 
             self.graph = graph
 
