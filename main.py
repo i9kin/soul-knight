@@ -180,6 +180,8 @@ first = 0
 
 while True:
     clock.tick(60)
+
+
     events = pygame.event.get()
     for event in events:
         if event.type == pygame.QUIT:
@@ -251,14 +253,17 @@ while True:
 
     camera.render(screen)
 
-    start = ((person.rect.y) // 16 + 1) * \
-        len(lvl[0]) + (person.rect.x + 15) // 16 + 1
+    start = ((person.rect.y + 17) // 16) * len(lvl[0]) + (person.rect.x + 17) // 16
     for ch in sprites.character:
-        to = ((ch.rect.y) // 16 + 1) * len(lvl[0]) + (ch.rect.x + 15) // 16 + 1
+        to = ((ch.rect.y + 17) // 16) * len(lvl[0]) + (ch.rect.x + 17) // 16 
         if colors[start] != colors[to]:
             ch.drawing = False
             continue
+        else:
+            ch.drawing = True
+
         ch.draw(screen, camera.dx, camera.dy)
+
 
     camera.dx = -person.rect.x + 500 - 32
     camera.dy = - person.rect.y + 250 - 32
@@ -298,6 +303,8 @@ while True:
     elif fps_block == -1 and person.anim != 10:
         person.s()
 
+
+
     for aroow in sprites.aroows:
         for obj in sprites.doors:
             offset = (aroow.rect.x - obj.rect.x + int(aroow.dx),
@@ -333,15 +340,11 @@ while True:
         else:
             cur.death()
 
-    start = ((person.rect.y) // 16 + 1) * \
-        len(lvl[0]) + (person.rect.x + 15) // 16 + 1
-    lvl[start // len(lvl[0])][start % len(lvl[0])] = 'k'
-
     for cur in sprites.character:
         if not cur.main_person:
-            if cur.fps_draw % 5 == 0:
-                to = ((cur.rect.y) // 16 + 1) * \
-                    len(lvl[0]) + (cur.rect.x + 15) // 16 + 1
+            if cur.fps_draw % 10 == 0:
+                to = ((cur.rect.y + 17) // 16) * len(lvl[0]) + (cur.rect.x + 17) // 16
+
                 if colors[start] != colors[to]:
                     continue
                 res = graph.bfs_shortest_path(game_graph, to, start)
@@ -359,7 +362,9 @@ while True:
                     else:
                         cur.a()
                     cur.rect = pygame.Rect(x - 16, y - 16, 16, 16)
+
             cur.fps_draw += 1
+    
 
     for cur in sprites.character:
         if cur.xp <= 0:
@@ -379,4 +384,8 @@ while True:
             if cur.mask.overlap_area(person.mask, offset) > 0:
                 cur.kill()
                 person.xp -= 30
+
+
+
+
     pygame.display.flip()
