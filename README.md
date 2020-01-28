@@ -1,2 +1,2 @@
 # soul-knight
-pygame
+pygame, pygame-menu, tmx
