@@ -1,0 +1,3 @@
+recursive-include soulknight/maps *
+recursive-include soulknight/tmp *
+recursive-include soulknight/ *.png

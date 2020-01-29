@@ -3,18 +3,21 @@ import pygame
 from pygame import *
 from pygame.locals import *
 import random
-import sprites
+
+
+from . import sprites
+from . import cursor
+from .tmx import TMX
+from .engine import Engine, Camera
+from . import graph
+
 import threading
 import sys
 import time
 import datetime
-import cursor
 import os
 import time
 
-from tmx import TMX
-from engine import Engine, Camera
-import graph
 
 
 def quit():
@@ -23,6 +26,8 @@ def quit():
 
 def main_background():
     pass
+
+
 
 
 TIME = datetime.datetime.now() - datetime.datetime.now()

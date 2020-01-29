@@ -1,10 +1,14 @@
 import tiledtmxloader
-import sprites
+from . import  sprites
 import pygame
+import os
+
 
 class TMX:
 
     def __init__(self, file='map.tmx'):
+        os.chdir(os.path.dirname(os.path.abspath(__file__)))
+        #file = os.path.join(), file)
         world_map = tiledtmxloader.tmxreader.TileMapParser().parse_decode(file)
         self.resources = tiledtmxloader.helperspygame.ResourceLoaderPygame()
         self.resources.load(world_map)

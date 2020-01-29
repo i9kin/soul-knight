@@ -1,0 +1,15 @@
+Metadata-Version: 1.1
+Name: soulknight
+Version: 0.1
+Summary: The funniest joke in the world
+Home-page: https://github.com/9kin/soul-knight
+Author: 9kin
+Author-email: flyingcircus@example.com
+License: MIT
+Description: Really, the funniest around.
+Keywords: funniest joke comedy flying circus
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Topic :: Text Processing :: Linguistic
