@@ -3,14 +3,11 @@ from setuptools import setup, find_packages
 setup(name='soulknight',
       version='0.1',
       description='The funniest joke in the world',
-      long_description='Really, the funniest around.',
+      long_description='pygame',
       classifiers=[
         'Development Status :: 3 - Alpha',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2.7',
-        'Topic :: Text Processing :: Linguistic',
       ],
-      keywords='funniest joke comedy flying circus',
+      keywords='game for yandex lyceum',
       url='https://github.com/9kin/soul-knight',
       author='9kin',
       license='MIT',
@@ -18,11 +15,12 @@ setup(name='soulknight',
       install_requires=[
           'pygame', 'pygame-menu',
       ],
+      dependency_links=['https://github.com/9kin/pytmxloader'],
       entry_points={
         'console_scripts':
             ['soulknight = soulknight:main']
       },
 
 	  include_package_data=True,
-      zip_safe=False
+    zip_safe=False
 )
