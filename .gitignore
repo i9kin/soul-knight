@@ -1,4 +1,4 @@
 # Distribution files
-*.egg-info
+*.dist
 build/*
-dist
+soulknight.egg-info
