@@ -37,13 +37,37 @@ class CharacterSprite(pygame.sprite.Sprite):
             screen.blit(self.image, self.rect)
 
     def cut_sheet(self, sheet):
-        pos = [7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 4, 4, 4, 4, 13, 13, 13, 13, 6]
+        pos = [
+            7,
+            7,
+            7,
+            7,
+            8,
+            8,
+            8,
+            8,
+            9,
+            9,
+            9,
+            9,
+            4,
+            4,
+            4,
+            4,
+            13,
+            13,
+            13,
+            13,
+            6,
+        ]
         self.frames = [[] for _ in range(len(pos))]
         self.rect = pygame.Rect(0, 0, 64, 64)
         for j in range(len(pos)):
             for i in range(pos[j]):
                 frame_location = (self.rect.w * i, self.rect.h * j)
-                e = sheet.subsurface(pygame.Rect(frame_location, self.rect.size))
+                e = sheet.subsurface(
+                    pygame.Rect(frame_location, self.rect.size)
+                )
                 self.frames[j].append(e)
 
     def update(self, i):
@@ -105,7 +129,9 @@ class AroowSprite(pygame.sprite.Sprite):
         # https://stackoverflow.com/a/54714144
         pos = (200, 200)
         w, h = self.main_image.get_size()
-        box = [pygame.math.Vector2(p) for p in [(0, 0), (w, 0), (w, -h), (0, -h)]]
+        box = [
+            pygame.math.Vector2(p) for p in [(0, 0), (w, 0), (w, -h), (0, -h)]
+        ]
         box_rotate = [p.rotate(angle) for p in box]
         min_box = (
             min(box_rotate, key=lambda p: p[0])[0],
@@ -126,7 +152,11 @@ class AroowSprite(pygame.sprite.Sprite):
 
     def rotate_c(self, angle):
         self.blitRotate(
-            (self.main_image.get_width() // 2, self.main_image.get_height() // 2), angle
+            (
+                self.main_image.get_width() // 2,
+                self.main_image.get_height() // 2,
+            ),
+            angle,
         )
 
 

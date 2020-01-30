@@ -1,7 +1,10 @@
-import tiledtmxloader
-from . import sprites
-import pygame
 import os
+
+import pygame
+
+import tiledtmxloader
+
+from . import sprites
 
 
 class TMX:
@@ -34,12 +37,16 @@ class TMX:
                                     self.lvl[2 * col + x][2 * row - 1] = "-"
                                 self.lvl[2 * col + x][2 * row] = "-"
                                 self.lvl[2 * col + x][2 * row + 1] = "-"
-                        tmp = sprites.Sprite(layer.content2D[col][row].image, tmx[i])
+                        tmp = sprites.Sprite(
+                            layer.content2D[col][row].image, tmx[i]
+                        )
                         tmp.move(row * 32, col * 32)
 
         layer = self.sprite_layers[2]
         for door in layer.objects:
-            d = sprites.Door(["tmp/4.png", "tmp/5.png", "tmp/6.png", "tmp/7.png"])
+            d = sprites.Door(
+                ["tmp/4.png", "tmp/5.png", "tmp/6.png", "tmp/7.png"]
+            )
             d.move(door.x // 32 * 32, door.y // 32 * 32)
             d.open = int(door.properties["open"])
             row = door.x // 32

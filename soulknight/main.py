@@ -1,22 +1,18 @@
-import pygameMenu
-import pygame
-from pygame import *
-from pygame.locals import *
-import random
-
-
-from . import sprites
-from . import cursor
-from .tmx import TMX
-from .engine import Engine, Camera
-from . import graph
-
-import threading
-import sys
-import time
 import datetime
 import os
+import random
+import sys
+import threading
 import time
+
+import pygame
+import pygameMenu
+from pygame import *
+from pygame.locals import *
+
+from . import cursor, graph, sprites
+from .engine import Camera, Engine
+from .tmx import TMX
 
 
 def quit():
@@ -258,7 +254,9 @@ while True:
         if fr.colliderect(sr):
             dy = 48 + (y1 - y3)
             dx = 32 + (x1 - x3)
-            if (door.open == 0 or door.open == 2) and ((48 + (y3 - y1)) // 20 != 0):
+            if (door.open == 0 or door.open == 2) and (
+                (48 + (y3 - y1)) // 20 != 0
+            ):
                 if door.open == 0:
                     door.image = door.frames[(48 + (y3 - y1)) // 20 - 1]
                 elif door.open == 2:
@@ -273,7 +271,9 @@ while True:
 
     camera.render(screen)
 
-    start = ((person.rect.y + 17) // 16) * len(lvl[0]) + (person.rect.x + 17) // 16
+    start = ((person.rect.y + 17) // 16) * len(lvl[0]) + (
+        person.rect.x + 17
+    ) // 16
     for ch in sprites.character:
         to = ((ch.rect.y + 17) // 16) * len(lvl[0]) + (ch.rect.x + 17) // 16
         if colors[start] != colors[to]:
@@ -303,7 +303,10 @@ while True:
             if event.button == 1 and fps_block == -1:
                 attack = True
                 for obj in sprites.doors:
-                    offset = (person.rect.x - obj.rect.x, person.rect.y - obj.rect.y)
+                    offset = (
+                        person.rect.x - obj.rect.x,
+                        person.rect.y - obj.rect.y,
+                    )
                     if obj.mask.overlap_area(person.mask, offset) > 0:
                         attack = False
                         break
@@ -337,7 +340,10 @@ while True:
                 aroow.rect.x - obj.rect.x + int(aroow.dx),
                 aroow.rect.y - obj.rect.y + int(aroow.dy),
             )
-            if not obj.main_person and obj.mask.overlap_area(aroow.mask, offset) > 0:
+            if (
+                not obj.main_person
+                and obj.mask.overlap_area(aroow.mask, offset) > 0
+            ):
                 aroow.kill()
                 obj.xp -= 100
                 break
@@ -365,7 +371,9 @@ while True:
     for cur in sprites.character:
         if not cur.main_person:
             if cur.fps_draw % 10 == 0:
-                to = ((cur.rect.y + 17) // 16) * len(lvl[0]) + (cur.rect.x + 17) // 16
+                to = ((cur.rect.y + 17) // 16) * len(lvl[0]) + (
+                    cur.rect.x + 17
+                ) // 16
 
                 if colors[start] != colors[to]:
                     continue
