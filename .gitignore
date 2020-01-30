@@ -1,4 +1,2 @@
-# Distribution files
-*.dist
-build/*
-soulknight.egg-info/*
+build/
+soulknight.egg-info/
