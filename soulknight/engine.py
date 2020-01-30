@@ -13,8 +13,8 @@ def scalar(x1, y1, x2, y2):
 def module(x, y):
     return math.sqrt(x ** 2 + y ** 2)
 
-class Engine():
 
+class Engine:
     def __init__(self, person):
         self.obj = []
         self.person = person
@@ -22,8 +22,10 @@ class Engine():
     def check(self, x, y):
         # https://mrtsepa.gitbooks.io/pygame-tutorial/content/reference/pygame/masks.html
         for wall in sprites.walls:
-            offset = (wall.rect.x - self.person.rect.x - x,
-                      wall.rect.y - self.person.rect.y - y)
+            offset = (
+                wall.rect.x - self.person.rect.x - x,
+                wall.rect.y - self.person.rect.y - y,
+            )
             if self.person.mask.overlap_area(wall.mask, offset) > 0:
                 return False
         return True
@@ -102,10 +104,9 @@ class Engine():
         else:
             self.person.s_attack()
 
-
     def atack(self, x, y):
         x2 = x - self.person.rect.x - 32
-        y2 = - y + self.person.rect.y + 32
+        y2 = -y + self.person.rect.y + 32
         cos1 = scalar(100, 0, x2, y2) / (module(100, 0) * module(x2, y2))
         cos2 = scalar(0, 100, x2, y2) / (module(0, 100) * module(x2, y2))
         ang1 = math.degrees(math.acos(cos1))
@@ -126,8 +127,7 @@ class Engine():
         return angle
 
 
-class Camera():
-
+class Camera:
     def __init__(self, sprites, dx, dy):
         self.dx, self.dy = dx, dy
         self.sprites = sprites
@@ -136,4 +136,3 @@ class Camera():
         for sprite_group in self.sprites:
             for sprite in sprite_group:
                 sprite.draw(screen, self.dx, self.dy)
-

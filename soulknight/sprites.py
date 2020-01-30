@@ -11,7 +11,7 @@ doors = pygame.sprite.Group()
 class CharacterSprite(pygame.sprite.Sprite):
     def __init__(self, sheet, x, y, main_person, group):
         self.main_person = main_person
-        
+
         self.anim = 0
         super().__init__(group)
         self.main_sheet = sheet
@@ -28,7 +28,6 @@ class CharacterSprite(pygame.sprite.Sprite):
         self.fps_draw = 0
         self.cnt_death = 0
 
-
     def draw(self, screen, dx=0, dy=0):
         if dx != 0 or dy != 0:
             rect = self.rect
@@ -44,8 +43,7 @@ class CharacterSprite(pygame.sprite.Sprite):
         for j in range(len(pos)):
             for i in range(pos[j]):
                 frame_location = (self.rect.w * i, self.rect.h * j)
-                e = sheet.subsurface(pygame.Rect(
-                    frame_location, self.rect.size))
+                e = sheet.subsurface(pygame.Rect(frame_location, self.rect.size))
                 self.frames[j].append(e)
 
     def update(self, i):
@@ -83,6 +81,7 @@ class CharacterSprite(pygame.sprite.Sprite):
     def death(self):
         self.update(20)
 
+
 class AroowSprite(pygame.sprite.Sprite):
     def __init__(self, sheet):
         super().__init__(aroows)
@@ -93,7 +92,7 @@ class AroowSprite(pygame.sprite.Sprite):
         self.image = sheet
         self.center = (100, 100)
         self.main_image = self.image
-        
+
     def draw(self, screen, dx=0, dy=0):
         if dx != 0 or dy != 0:
             rect = self.rect
@@ -105,32 +104,39 @@ class AroowSprite(pygame.sprite.Sprite):
     def blitRotate(self, originPos, angle):
         # https://stackoverflow.com/a/54714144
         pos = (200, 200)
-        w, h       = self.main_image.get_size()
-        box        = [pygame.math.Vector2(p) for p in [(0, 0), (w, 0), (w, -h), (0, -h)]]
+        w, h = self.main_image.get_size()
+        box = [pygame.math.Vector2(p) for p in [(0, 0), (w, 0), (w, -h), (0, -h)]]
         box_rotate = [p.rotate(angle) for p in box]
-        min_box    = (min(box_rotate, key=lambda p: p[0])[0], min(box_rotate, key=lambda p: p[1])[1])
-        max_box    = (max(box_rotate, key=lambda p: p[0])[0], max(box_rotate, key=lambda p: p[1])[1])
-        pivot        = pygame.math.Vector2(originPos[0], -originPos[1])
+        min_box = (
+            min(box_rotate, key=lambda p: p[0])[0],
+            min(box_rotate, key=lambda p: p[1])[1],
+        )
+        max_box = (
+            max(box_rotate, key=lambda p: p[0])[0],
+            max(box_rotate, key=lambda p: p[1])[1],
+        )
+        pivot = pygame.math.Vector2(originPos[0], -originPos[1])
         pivot_rotate = pivot.rotate(angle)
-        pivot_move   = pivot_rotate - pivot        
+        pivot_move = pivot_rotate - pivot
         self.image = pygame.transform.rotate(self.main_image, angle)
         self.rect = self.image.get_rect()
         self.rect.x = pos[0] - originPos[0] + min_box[0] - pivot_move[0]
         self.rect.y = pos[1] - originPos[1] - max_box[1] + pivot_move[1]
         self.mask = pygame.mask.from_surface(self.image)
 
-
     def rotate_c(self, angle):
-        self.blitRotate((self.main_image.get_width() //2, self.main_image.get_height() // 2), angle)
+        self.blitRotate(
+            (self.main_image.get_width() // 2, self.main_image.get_height() // 2), angle
+        )
+
 
 class Sprite(pygame.sprite.Sprite):
-    
     def __init__(self, image, group):
         super().__init__(group)
         self.image = image
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
-        
+
     def draw(self, screen, dx=0, dy=0):
         if dx != 0 or dy != 0:
             rect = self.rect
@@ -138,13 +144,12 @@ class Sprite(pygame.sprite.Sprite):
             screen.blit(self.image, rect)
         else:
             screen.blit(self.image, self.rect)
-        
 
     def move(self, x, y):
         self.rect = self.rect.move(x, y)
 
-class Door(pygame.sprite.Sprite):
 
+class Door(pygame.sprite.Sprite):
     def __init__(self, doors_):
         super().__init__(doors)
         self.open = 0

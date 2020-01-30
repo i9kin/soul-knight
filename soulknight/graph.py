@@ -31,32 +31,52 @@ class G:
         graph = {}
         for i in range(len(self.lvl)):
             for j in range(len(self.lvl[i])):
-                if self.lvl[i][j] != '-':
+                if self.lvl[i][j] != "-":
                     graph[i * len(self.lvl[0]) + j] = []
-                    if 0 <= i - 1 and 0 <= j - 1 and self.lvl[i - 1][j - 1] != '-':
-                        graph[i * len(self.lvl[0]) + j].append((i - 1)
-                                                               * len(self.lvl[0]) + j - 1)
-                    if 0 <= i - 1 and self.lvl[i - 1][j] != '-':
-                        graph[i * len(self.lvl[0]) +
-                              j].append((i - 1) * len(self.lvl[0]) + j)
-                    if 0 <= i - 1 and j + 1 < len(self.lvl[i]) and self.lvl[i - 1][j + 1] != '-':
-                        graph[i * len(self.lvl[0]) + j].append((i - 1)
-                                                               * len(self.lvl[0]) + j + 1)
-                    if 0 <= j - 1 and self.lvl[i][j - 1] != '-':
-                        graph[i * len(self.lvl[0]) + j].append(i *
-                                                               len(self.lvl[0]) + j - 1)
-                    if j + 1 < len(self.lvl[i]) and self.lvl[i][j + 1] != '-':
-                        graph[i * len(self.lvl[0]) + j].append(i *
-                                                               len(self.lvl[0]) + j + 1)
-                    if i + 1 < len(self.lvl) and 0 <= j - 1 and self.lvl[i + 1][j - 1] != '-':
-                        graph[i * len(self.lvl[0]) + j].append((i + 1)
-                                                               * len(self.lvl[0]) + j - 1)
-                    if i + 1 < len(self.lvl) and self.lvl[i + 1][j] != '-':
-                        graph[i * len(self.lvl[0]) +
-                              j].append((i + 1) * len(self.lvl[0]) + j)
-                    if i + 1 < len(self.lvl) and j + 1 < len(self.lvl[i]) and self.lvl[i + 1][j + 1] != '-':
-                        graph[i * len(self.lvl[0]) + j].append((i + 1)
-                                                               * len(self.lvl[0]) + j + 1)
+                    if 0 <= i - 1 and 0 <= j - 1 and self.lvl[i - 1][j - 1] != "-":
+                        graph[i * len(self.lvl[0]) + j].append(
+                            (i - 1) * len(self.lvl[0]) + j - 1
+                        )
+                    if 0 <= i - 1 and self.lvl[i - 1][j] != "-":
+                        graph[i * len(self.lvl[0]) + j].append(
+                            (i - 1) * len(self.lvl[0]) + j
+                        )
+                    if (
+                        0 <= i - 1
+                        and j + 1 < len(self.lvl[i])
+                        and self.lvl[i - 1][j + 1] != "-"
+                    ):
+                        graph[i * len(self.lvl[0]) + j].append(
+                            (i - 1) * len(self.lvl[0]) + j + 1
+                        )
+                    if 0 <= j - 1 and self.lvl[i][j - 1] != "-":
+                        graph[i * len(self.lvl[0]) + j].append(
+                            i * len(self.lvl[0]) + j - 1
+                        )
+                    if j + 1 < len(self.lvl[i]) and self.lvl[i][j + 1] != "-":
+                        graph[i * len(self.lvl[0]) + j].append(
+                            i * len(self.lvl[0]) + j + 1
+                        )
+                    if (
+                        i + 1 < len(self.lvl)
+                        and 0 <= j - 1
+                        and self.lvl[i + 1][j - 1] != "-"
+                    ):
+                        graph[i * len(self.lvl[0]) + j].append(
+                            (i + 1) * len(self.lvl[0]) + j - 1
+                        )
+                    if i + 1 < len(self.lvl) and self.lvl[i + 1][j] != "-":
+                        graph[i * len(self.lvl[0]) + j].append(
+                            (i + 1) * len(self.lvl[0]) + j
+                        )
+                    if (
+                        i + 1 < len(self.lvl)
+                        and j + 1 < len(self.lvl[i])
+                        and self.lvl[i + 1][j + 1] != "-"
+                    ):
+                        graph[i * len(self.lvl[0]) + j].append(
+                            (i + 1) * len(self.lvl[0]) + j + 1
+                        )
 
             self.graph = graph
 
@@ -72,6 +92,7 @@ class G:
             for u in self.graph[v]:
                 if not used[u]:
                     dfs(u, color)
+
         color = 0
         for i in range(n):
             if colors[i] == -1 and i in self.graph:

@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
 setup(name='soulknight',
-      version='0.1',
+      version='1.0',
       description='The funniest joke in the world',
       long_description='pygame',
       classifiers=[
-        'Development Status :: 3 - Alpha',
+          'Development Status :: 3 - Alpha',
       ],
       keywords='game for yandex lyceum',
       url='https://github.com/9kin/soul-knight',
@@ -17,10 +17,9 @@ setup(name='soulknight',
       ],
       dependency_links=['https://github.com/9kin/pytmxloader'],
       entry_points={
-        'console_scripts':
-            ['soulknight = soulknight:main']
+          'console_scripts':
+          ['soulknight = soulknight:main']
       },
-
-	  include_package_data=True,
-    zip_safe=False
+      include_package_data=True,
+      zip_safe=False
 )

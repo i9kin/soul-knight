@@ -19,15 +19,12 @@ import os
 import time
 
 
-
 def quit():
     os._exit(0)
 
 
 def main_background():
     pass
-
-
 
 
 TIME = datetime.datetime.now() - datetime.datetime.now()
@@ -38,11 +35,11 @@ size = (1000, 500)
 pygame.init()
 screen = pygame.display.set_mode(size)  # pygame.FULLSCREEN)
 pygame.mouse.set_cursor((24, 24), (7, 0), cursor.curs, cursor.mask)
-os.environ['SDL_VIDEO_CENTERED'] = '1'
+os.environ["SDL_VIDEO_CENTERED"] = "1"
 clock = pygame.time.Clock()
 sys.setrecursionlimit(100000000)
 
-ABOUT = ['Author: 9kin']
+ABOUT = ["Author: 9kin"]
 COLOR_BLACK = (0, 0, 0)
 COLOR_WHITE = (255, 255, 255)
 FPS = 60.0
@@ -61,7 +58,7 @@ def update_level(value, enabled):
             sprite.kill()
     for sprite in sprites.character:
         sprite.kill()
-    tmx = TMX(f'maps/map{value[0]}.tmx')
+    tmx = TMX(f"maps/map{value[0]}.tmx")
     lvl = tmx.lvl
     person = tmx.person
     engine = Engine(person)
@@ -96,7 +93,6 @@ def back():
 
 
 class KeyBoard(threading.Thread):
-
     def __init__(self):
         super().__init__()
 
@@ -114,29 +110,39 @@ class KeyBoard(threading.Thread):
 
 thread = KeyBoard()
 thread.start()
-camera = Camera([sprites.background, sprites.character_death,
-                 sprites.aroows, sprites.walls, sprites.doors], 200, 200)
+camera = Camera(
+    [
+        sprites.background,
+        sprites.character_death,
+        sprites.aroows,
+        sprites.walls,
+        sprites.doors,
+    ],
+    200,
+    200,
+)
 
 
 def generate_menu(title, lines):
-    about_menu = pygameMenu.TextMenu(screen,
-                                     bgfun=main_background,
-                                     color_selected=COLOR_WHITE,
-                                     font=pygameMenu.font.FONT_BEBAS,
-                                     font_color=COLOR_BLACK,
-                                     font_size=30,
-                                     font_size_title=40,
-                                     menu_alpha=100,
-                                     menu_color=MENU_BACKGROUND_COLOR,
-                                     menu_height=int(size[1] * 0.7),
-                                     menu_width=int(size[0] * 0.8),
-                                     option_shadow=False,
-                                     onclose=pygameMenu.events.CLOSE,
-                                     title=title,
-                                     window_height=size[1],
-                                     window_width=size[0],
-                                     enabled=False
-                                     )
+    about_menu = pygameMenu.TextMenu(
+        screen,
+        bgfun=main_background,
+        color_selected=COLOR_WHITE,
+        font=pygameMenu.font.FONT_BEBAS,
+        font_color=COLOR_BLACK,
+        font_size=30,
+        font_size_title=40,
+        menu_alpha=100,
+        menu_color=MENU_BACKGROUND_COLOR,
+        menu_height=int(size[1] * 0.7),
+        menu_width=int(size[0] * 0.8),
+        option_shadow=False,
+        onclose=pygameMenu.events.CLOSE,
+        title=title,
+        window_height=size[1],
+        window_width=size[0],
+        enabled=False,
+    )
     for line in lines:
         if type(line) is str:
             about_menu.add_line(line)
@@ -148,34 +154,38 @@ def generate_menu(title, lines):
     return about_menu
 
 
-about_menu = generate_menu('about',
-                           ['Author: 9kin',
-                            ('Return to menu', pygameMenu.events.BACK)
-                            ]
-                           )
-
-main_menu = generate_menu('main', [
-    ('play', play_game),
-    ('reset level', reset_game),
-    ['level', ('1', 1), ('2', 2), update_level],
-    ('about', about_menu),
-    ('back', back),
-    ('quit', quit)
-]
+about_menu = generate_menu(
+    "about", ["Author: 9kin", ("Return to menu", pygameMenu.events.BACK)]
 )
 
-win_menu = generate_menu('you win', [
-    ('reset level', reset_game),
-    ['level', ('1', 1), ('2', 2), update_level],
-    ('quit', quit)
-]
+main_menu = generate_menu(
+    "main",
+    [
+        ("play", play_game),
+        ("reset level", reset_game),
+        ["level", ("1", 1), ("2", 2), update_level],
+        ("about", about_menu),
+        ("back", back),
+        ("quit", quit),
+    ],
 )
 
-lose_menu = generate_menu('you lose', [
-    ('reset level', reset_game),
-    ['level', ('1', 1), ('2', 2), update_level],
-    ('quit', quit)
-]
+win_menu = generate_menu(
+    "you win",
+    [
+        ("reset level", reset_game),
+        ["level", ("1", 1), ("2", 2), update_level],
+        ("quit", quit),
+    ],
+)
+
+lose_menu = generate_menu(
+    "you lose",
+    [
+        ("reset level", reset_game),
+        ["level", ("1", 1), ("2", 2), update_level],
+        ("quit", quit),
+    ],
 )
 
 MAIN_MENU = main_menu
@@ -185,7 +195,6 @@ first = 0
 
 while True:
     clock.tick(60)
-
 
     events = pygame.event.get()
     for event in events:
@@ -208,20 +217,26 @@ while True:
     pygame.display.set_caption(str(TIME))
 
     if len(sprites.character) == 1:
-        MAIN_MENU = generate_menu('you win', [f'total time:{TIME}',
-                                              ('reset level', reset_game),
-                                              ['level', ('1', 1),
-                                               ('2', 2), update_level],
-                                              ('quit', quit)
-                                              ])
+        MAIN_MENU = generate_menu(
+            "you win",
+            [
+                f"total time:{TIME}",
+                ("reset level", reset_game),
+                ["level", ("1", 1), ("2", 2), update_level],
+                ("quit", quit),
+            ],
+        )
         MAIN_MENU.enable()
     elif person.xp <= 0:
-        MAIN_MENU = generate_menu('you lose', [f'total time:{TIME}',
-                                               ('reset level', reset_game),
-                                               ['level', ('1', 1),
-                                                ('2', 2), update_level],
-                                               ('quit', quit)
-                                               ])
+        MAIN_MENU = generate_menu(
+            "you lose",
+            [
+                f"total time:{TIME}",
+                ("reset level", reset_game),
+                ["level", ("1", 1), ("2", 2), update_level],
+                ("quit", quit),
+            ],
+        )
 
         MAIN_MENU.enable()
 
@@ -260,7 +275,7 @@ while True:
 
     start = ((person.rect.y + 17) // 16) * len(lvl[0]) + (person.rect.x + 17) // 16
     for ch in sprites.character:
-        to = ((ch.rect.y + 17) // 16) * len(lvl[0]) + (ch.rect.x + 17) // 16 
+        to = ((ch.rect.y + 17) // 16) * len(lvl[0]) + (ch.rect.x + 17) // 16
         if colors[start] != colors[to]:
             ch.drawing = False
             continue
@@ -269,9 +284,8 @@ while True:
 
         ch.draw(screen, camera.dx, camera.dy)
 
-
     camera.dx = -person.rect.x + 500 - 32
-    camera.dy = - person.rect.y + 250 - 32
+    camera.dy = -person.rect.y + 250 - 32
 
     if fps_block == 12 * 3:
         person.s()
@@ -289,8 +303,7 @@ while True:
             if event.button == 1 and fps_block == -1:
                 attack = True
                 for obj in sprites.doors:
-                    offset = (person.rect.x - obj.rect.x,
-                              person.rect.y - obj.rect.y)
+                    offset = (person.rect.x - obj.rect.x, person.rect.y - obj.rect.y)
                     if obj.mask.overlap_area(person.mask, offset) > 0:
                         attack = False
                         break
@@ -308,20 +321,22 @@ while True:
     elif fps_block == -1 and person.anim != 10:
         person.s()
 
-
-
     for aroow in sprites.aroows:
         for obj in sprites.doors:
-            offset = (aroow.rect.x - obj.rect.x + int(aroow.dx),
-                      aroow.rect.y - obj.rect.y + int(aroow.dy))
+            offset = (
+                aroow.rect.x - obj.rect.x + int(aroow.dx),
+                aroow.rect.y - obj.rect.y + int(aroow.dy),
+            )
             if obj.mask.overlap_area(aroow.mask, offset) > 0:
                 aroow.kill()
                 break
 
     for aroow in sprites.aroows:
         for obj in sprites.character:
-            offset = (aroow.rect.x - obj.rect.x + int(aroow.dx),
-                      aroow.rect.y - obj.rect.y + int(aroow.dy))
+            offset = (
+                aroow.rect.x - obj.rect.x + int(aroow.dx),
+                aroow.rect.y - obj.rect.y + int(aroow.dy),
+            )
             if not obj.main_person and obj.mask.overlap_area(aroow.mask, offset) > 0:
                 aroow.kill()
                 obj.xp -= 100
@@ -329,8 +344,10 @@ while True:
 
     for aroow in sprites.aroows:
         for obj in sprites.walls:
-            offset = (aroow.rect.x - obj.rect.x + int(aroow.dx),
-                      aroow.rect.y - obj.rect.y + int(aroow.dy))
+            offset = (
+                aroow.rect.x - obj.rect.x + int(aroow.dx),
+                aroow.rect.y - obj.rect.y + int(aroow.dy),
+            )
             if obj.mask.overlap_area(aroow.mask, offset) > 0:
                 aroow.kill()
                 break
@@ -369,19 +386,31 @@ while True:
                     cur.rect = pygame.Rect(x - 16, y - 16, 16, 16)
 
             cur.fps_draw += 1
-    
 
     for cur in sprites.character:
         if cur.xp <= 0:
             character_death = sprites.CharacterSprite(
-                cur.main_sheet, 0, 0, False, sprites.character_death)
+                cur.main_sheet, 0, 0, False, sprites.character_death
+            )
             character_death.move(cur.rect.x, cur.rect.y)
             cur.kill()
         elif cur.drawing:
-            pygame.draw.rect(screen, pygame.Color(
-                'red'), (cur.rect.x + 3 + camera.dx, cur.rect.y + camera.dy, 58, 10), 1)
-            pygame.draw.rect(screen, pygame.Color(
-                'red'), (cur.rect.x + 3 + camera.dx, cur.rect.y + camera.dy, 58 * (cur.xp / 100), 10))
+            pygame.draw.rect(
+                screen,
+                pygame.Color("red"),
+                (cur.rect.x + 3 + camera.dx, cur.rect.y + camera.dy, 58, 10),
+                1,
+            )
+            pygame.draw.rect(
+                screen,
+                pygame.Color("red"),
+                (
+                    cur.rect.x + 3 + camera.dx,
+                    cur.rect.y + camera.dy,
+                    58 * (cur.xp / 100),
+                    10,
+                ),
+            )
 
     for cur in sprites.character:
         if not cur.main_person:
@@ -389,8 +418,5 @@ while True:
             if cur.mask.overlap_area(person.mask, offset) > 0:
                 cur.kill()
                 person.xp -= 30
-
-
-
 
     pygame.display.flip()
