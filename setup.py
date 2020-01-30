@@ -2,10 +2,10 @@ from setuptools import setup, find_packages
 
 setup(
     name="soulknight",
-    version="1.0",
+    version="1.1",
     description="The funniest joke in the world",
     long_description="pygame",
-    classifiers=["Development Status :: 3 - Alpha",],
+    classifiers=["Programming Language :: Python :: 3.7",],
     keywords="game for yandex lyceum",
     url="https://github.com/9kin/soul-knight",
     author="9kin",
