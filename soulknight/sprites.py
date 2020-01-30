@@ -9,6 +9,10 @@ doors = pygame.sprite.Group()
 
 
 class CharacterSprite(pygame.sprite.Sprite):
+    """
+    This class describes a character sprite. http://gaurav.munjal.us/Universal-LPC-Spritesheet-Character-Generator/
+    """
+
     def __init__(self, sheet, x, y, main_person, group):
         self.main_person = main_person
 
@@ -107,6 +111,10 @@ class CharacterSprite(pygame.sprite.Sprite):
 
 
 class AroowSprite(pygame.sprite.Sprite):
+    """
+    This class describes an aroow sprite. + rotate sprite
+    """
+
     def __init__(self, sheet):
         super().__init__(aroows)
         self.dx = 0
@@ -161,6 +169,10 @@ class AroowSprite(pygame.sprite.Sprite):
 
 
 class Sprite(pygame.sprite.Sprite):
+    """
+    This class describes a sprite. (block sprite)
+    """
+
     def __init__(self, image, group):
         super().__init__(group)
         self.image = image
@@ -180,6 +192,10 @@ class Sprite(pygame.sprite.Sprite):
 
 
 class Door(pygame.sprite.Sprite):
+    """
+    This class describes a anim door.
+    """
+
     def __init__(self, doors_):
         super().__init__(doors)
         self.open = 0

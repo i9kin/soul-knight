@@ -8,6 +8,10 @@ from . import sprites
 
 
 class TMX:
+    """
+    This class describes a tmx by tiledtmxloader.
+    """
+
     def __init__(self, file="map.tmx"):
         os.chdir(os.path.dirname(os.path.abspath(__file__)))
         # file = os.path.join(), file)

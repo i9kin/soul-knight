@@ -46,6 +46,9 @@ MAIN_MENU = None
 
 
 def update_level(value, enabled):
+    """
+    update level
+    """
     global TIME, tmx, lvl, person, gr, game_graph, colors, fps_block, angle_attack, engine, cur_map, MAIN_MENU
     TIME = datetime.datetime.now() - datetime.datetime.now()
     cur_map = (value[0], 0)
@@ -69,26 +72,42 @@ def update_level(value, enabled):
 
 
 def update_time():
+    """
+    update time
+    """
     global LAST_TIME
     LAST_TIME = datetime.datetime.now()
 
 
 def play_game():
+    """
+    function button menu `play`
+    """
     update_time()
     MAIN_MENU.disable()
 
 
 def reset_game():
+    """
+    function button menu `reset game`
+    """
     update_time()
     update_level(cur_map, pygameMenu.events.CLOSE)
 
 
 def back():
+    """
+    function button menu `back`
+    """
     update_time()
     MAIN_MENU.disable()
 
 
 class KeyBoard(threading.Thread):
+    """
+    class for reading keyboard sequence
+    """
+
     def __init__(self):
         super().__init__()
 
@@ -120,6 +139,9 @@ camera = Camera(
 
 
 def generate_menu(title, lines):
+    """
+    function for creating menu
+    """
     about_menu = pygameMenu.TextMenu(
         screen,
         bgfun=main_background,
@@ -199,7 +221,11 @@ while True:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 MAIN_MENU.enable()
+
     if first == 2:
+        """
+        if for show menu after load game
+        """
         MAIN_MENU.enable()
         TIME = datetime.datetime.now() - datetime.datetime.now()
         LAST_TIME = datetime.datetime.now()
@@ -208,22 +234,13 @@ while True:
     MAIN_MENU.mainloop(events, disable_loop=test)
     if test:
         break
+    # calculating time
     TIME += datetime.datetime.now() - LAST_TIME
     LAST_TIME = datetime.datetime.now()
     pygame.display.set_caption(str(TIME))
 
-    if len(sprites.character) == 1:
-        MAIN_MENU = generate_menu(
-            "you win",
-            [
-                f"total time:{TIME}",
-                ("reset level", reset_game),
-                ["level", ("1", 1), ("2", 2), update_level],
-                ("quit", quit),
-            ],
-        )
-        MAIN_MENU.enable()
-    elif person.xp <= 0:
+    if person.xp <= 0:
+        # you lose
         MAIN_MENU = generate_menu(
             "you lose",
             [
@@ -235,9 +252,21 @@ while True:
         )
 
         MAIN_MENU.enable()
+    elif len(sprites.character) == 1:
+        # you win
+        MAIN_MENU = generate_menu(
+            "you win",
+            [
+                f"total time:{TIME}",
+                ("reset level", reset_game),
+                ["level", ("1", 1), ("2", 2), update_level],
+                ("quit", quit),
+            ],
+        )
+        MAIN_MENU.enable()
 
     screen.fill(pygame.Color(109, 170, 44))
-
+    # door animating (open)
     f = person.rect
     for door in sprites.doors:
         x1 = f.x + 16
@@ -274,6 +303,8 @@ while True:
     start = ((person.rect.y + 17) // 16) * len(lvl[0]) + (
         person.rect.x + 17
     ) // 16
+
+    # drawing character in current component
     for ch in sprites.character:
         to = ((ch.rect.y + 17) // 16) * len(lvl[0]) + (ch.rect.x + 17) // 16
         if colors[start] != colors[to]:
@@ -287,6 +318,7 @@ while True:
     camera.dx = -person.rect.x + 500 - 32
     camera.dy = -person.rect.y + 250 - 32
 
+    # attack animation
     if fps_block == 12 * 3:
         person.s()
         fps_block = -1
@@ -324,6 +356,7 @@ while True:
     elif fps_block == -1 and person.anim != 10:
         person.s()
 
+    # arrows collide with doors
     for aroow in sprites.aroows:
         for obj in sprites.doors:
             offset = (
@@ -334,6 +367,7 @@ while True:
                 aroow.kill()
                 break
 
+    # arrows collide with character
     for aroow in sprites.aroows:
         for obj in sprites.character:
             offset = (
@@ -348,6 +382,7 @@ while True:
                 obj.xp -= 100
                 break
 
+    # arrows collide with walls
     for aroow in sprites.aroows:
         for obj in sprites.walls:
             offset = (
@@ -358,9 +393,11 @@ while True:
                 aroow.kill()
                 break
 
+    # arrow animation (moveing vector dx, dy)
     for aroow in sprites.aroows:
         aroow.rect = aroow.rect.move(aroow.dx, aroow.dy)
 
+    # death animation
     for cur in sprites.character_death:
         cur.cnt_death += 1
         if cur.cnt_death == 6:
@@ -368,6 +405,7 @@ while True:
         else:
             cur.death()
 
+    # algotitm for find path (bfs, dfs (colors))
     for cur in sprites.character:
         if not cur.main_person:
             if cur.fps_draw % 10 == 0:
@@ -395,6 +433,7 @@ while True:
 
             cur.fps_draw += 1
 
+    # draw xp status on character
     for cur in sprites.character:
         if cur.xp <= 0:
             character_death = sprites.CharacterSprite(
@@ -420,6 +459,7 @@ while True:
                 ),
             )
 
+    # monster kill
     for cur in sprites.character:
         if not cur.main_person:
             offset = (cur.rect.x - person.rect.x, cur.rect.y - person.rect.y)

@@ -1,7 +1,5 @@
-# https://github.com/TheAlgorithms/Python/blob/master/graphs/bfs_shortest_path.py
-
-
 def bfs_shortest_path(graph: dict, start, goal) -> str:
+    # https://github.com/TheAlgorithms/Python/blob/master/graphs/bfs_shortest_path.py
     explored = []
     queue = [[start]]
     if start == goal:
@@ -28,6 +26,8 @@ class G:
         self.components()
 
     def build(self):
+        # build graph from map
+        # one block 32x32 -> 4x4 graph
         graph = {}
         for i in range(len(self.lvl)):
             for j in range(len(self.lvl[i])):
@@ -85,6 +85,7 @@ class G:
             self.graph = graph
 
     def components(self):
+        # dfs alogortm https://e-maxx.ru/algo/connected_components
         n = len(self.lvl[0]) * len(self.lvl) * 16 - 1
         used = [False for _ in range(n + 1)]
         colors = [-1 for _ in range(n + 1)]
