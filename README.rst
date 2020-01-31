@@ -7,6 +7,9 @@ A soul knight clone made using `pygame <https://www.pygame.org>`_, `pygame-menu 
 
 |GitHub forks| |GitHub stars| |GitHub watchers| |GitHub issues|
 
+
+
+
 play
 """"""""
 
@@ -14,6 +17,10 @@ play
 
 ``pip3 install soulknight``
 ``soulknight``
+
+.. raw:: html
+	
+	<video src="demo.mkv" width="480" height="270" poster="static/poster.gif" controls/>
 
 
 .. |made-with-python| image:: https://img.shields.io/badge/Made%20with-Python-1f425f.svg
