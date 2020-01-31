@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="soulknight",
-    version="1.1",
+    version="1.3",
     description="The funniest joke in the world",
     long_description="pygame",
     classifiers=["Programming Language :: Python :: 3.7"],

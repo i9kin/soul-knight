@@ -7,6 +7,10 @@ A soul knight clone made using `pygame <https://www.pygame.org>`_, `pygame-menu 
 
 |GitHub forks| |GitHub stars| |GitHub watchers| |GitHub issues|
 
+.. raw:: html
+	
+	<script id="asciicast-tXJcR1eQuVlO9fgtIruYdytq5" src="https://asciinema.org/a/tXJcR1eQuVlO9fgtIruYdytq5.js" async></script>
+	
 install 
 """"""""
 ``pip3 install soulknight``
