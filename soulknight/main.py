@@ -7,7 +7,6 @@ import time
 
 import pygame
 import pygameMenu
-from pygame import *
 from pygame.locals import *
 
 from . import cursor, graph, sprites
