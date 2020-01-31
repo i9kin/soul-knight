@@ -16,15 +16,16 @@ play
 .. image:: cast.svg
 
 ``pip3 install soulknight``
+
 ``soulknight``
 
-.. raw:: html
+|youtube|
 
-	<iframe src="https://www.youtube.com/embed/pnQPCnZPISU"
-        width="632px"
-        height="393px"
-        class="youtube-embed">
-	</iframe>
+
+.. |youtube| image:: https://img.youtube.com/vi/pnQPCnZPISU/0.jpg
+    :target: https://www.youtube.com/watch?v=pnQPCnZPISU
+    :scale: 100%
+
 
 .. |made-with-python| image:: https://img.shields.io/badge/Made%20with-Python-1f425f.svg
     :alt: build status
