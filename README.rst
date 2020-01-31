@@ -19,8 +19,8 @@ play
 ``soulknight``
 
 .. raw:: html
-	
-	<video src="demo.mkv" width="480" height="270" poster="static/poster.gif" controls/>
+    
+    <video src="demo.mkv" width="480" height="270" poster="static/poster.gif" controls/>
 
 
 .. |made-with-python| image:: https://img.shields.io/badge/Made%20with-Python-1f425f.svg
